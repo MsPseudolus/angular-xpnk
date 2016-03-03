@@ -1,0 +1,70 @@
+[ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak], .ng-cloak, .x-ng-cloak {
+  display: none !important;
+}
+
+.uppercase {
+	text-transform: uppercase;
+}	
+
+h1.group-name {
+	color: #6B1471;
+}
+
+h2.tweeter-title {
+	font-size: 1.5rem;
+	margin-bottom: .3rem !important;
+}
+
+.ui.cards > .card, .ui.card {
+	width: 100% !important;
+}
+
+#group-tweets {
+	background-color: #F9F7EE;
+}
+
+.tweeter-container {
+	margin-bottom: 1em;
+}
+
+div.tweet-window {
+	max-height: 400px;
+	overflow: scroll;
+	margin: 15px 0 15px 0;
+	-webkit-overflow-scrolling: touch;
+}
+
+
+
+.animate-refresh.ng-enter, 
+.animate-refresh.ng-leave, 
+.animate-refresh.ng-move {
+  -webkit-transition: 0.5s linear all;
+  transition: 0.5s linear all;
+  position:relative;
+}
+
+.animate-refresh.ng-enter {
+  left:-10px;
+  opacity:0;
+}
+.animate-refresh.ng-enter.ng-enter-active {
+  left:0;
+  opacity:1;
+}
+
+.animate-refresh.ng-leave {
+  left:0;
+  opacity:1;
+}
+.animate-refresh.ng-leave.ng-leave-active {
+  left:-10px;
+  opacity:0;
+}
+
+.animate-refresh.ng-move {
+  opacity:0.5;
+}
+.animate-refresh.ng-move.ng-move-active {
+  opacity:1;
+}

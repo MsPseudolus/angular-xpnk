@@ -1,0 +1,34 @@
+				
+<div ng-controller="Tweets" class="ui centered padded grid" id="group-tweets">
+	<div class="column">
+		<div><h1 class="group-name uppercase" style="text-align: center; margin-bottom: .5em;">{{group_name}}</h1></div>
+		
+		<div id="newTweetStatus" ng-switch on="tweetStatus.switch" style="text-align: center;"> 
+			<div ng-switch-when="on"><span id="tweetsButton" class="ui orange label" ng-click="tweetStatus.switch = 'off'; refreshTweets()" style="margin-bottom: 1.5em;">New Tweets</span></div>
+			
+			<div ng-switch-when="off"></div>
+			<div ng-switch-default></div>
+		</div><!--end newTweetStatus -->
+		
+		<div ng-repeat="(twitter_user, tweet) in tweets | groupBy: " ng-cloak  id="anchor_{{twitter_user}}">
+			<div class="tweeter-container">
+			<h2 class="ui tweeter-title">{{twitter_user}}</h2>	
+			<row>
+				<div style="float: left; width: 22%;">
+				<img ng-src="{{thisProfileImage}}" id="{{twitter_user}}" class="content" style="height: 48px; width: 48px; border-radius: 0.2857rem;" profile-image>
+				</div>
+				<div style="height: 56px;" ng-cloak>
+				<button href style="margin-top: 0.4em; min-width: 100px;" class="ui labeled launch icon button primary" ng-click="reveal=1" ng-init="reveal=0" ng-model="reveal" ng-cloak><i class="twitter icon" ng-cloak></i>{{tweet.length}}</button><button style="margin-top: 0.4em; min-width: 72px;" class="ui button" ng-click="reveal=0" ng-model="reveal">Hide</button>
+				</div>
+			</row>
+			</div>
+			<div class="tweet-window" ng-show="reveal==1">
+				<div id="tweets-container" ng-repeat="embed in tweet | orderBy: 'tweet_ID': true" class="animate-refresh" ng-cloak>
+				<span id="{{embed.tweet_ID}}" embed-template ng-cloak></span>
+				</div>
+			</div>
+		</div>
+	</div>
+
+
+</div>
