@@ -326,5 +326,5 @@ xpnkApp.controller('Users', function Users($http, $scope, $routeParams) {
 	$http({method: 'GET', url: './data/'+$scope.group_name+'_users.json'}).success(function(data){
 		$scope.users = data;
     });
-})
+})  
 //uses nested controllers in the html to display tweets per user
