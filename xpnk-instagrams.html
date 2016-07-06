@@ -1,0 +1,11 @@
+        <!--begin xpnk-instagrams-->
+            <div class="instagram-window" data-thisIGUser={{Member.XpnkID}}>
+                <div xpnkID={{Member.XpnkID}} data-ng-repeat="insta in igData" data-ng-if="insta.XpnkID == Member.XpnkID">
+					<div xpnkID={{Member.XpnkID}} id="instas-container" data-ng-repeat="thisInsta in insta.InstagramPosts" class="animate-refresh instagram-post" ng-cloak>
+						<span process-insta ng-cloak ng-bind-html="thisInsta.InstagramOembed | trust">
+						</span>
+					</div>
+				</div>
+            </div>
+          
+        <!--end xpnk-instagrams-->

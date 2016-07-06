@@ -1,0 +1,50 @@
+<!--begin group-member-posts-->
+<div class="ui padded grid" id="group-tweets">
+    <div class="column">
+        <div><h1 class="group-name uppercase" style="text-align: center; margin-bottom: .5em;">{{group_name}}</h1></div>
+
+        <div id="newTweetStatus" ng-switch on="tweetStatus.switch" style="text-align: center;">
+            <div ng-switch-when="on">
+                <span id="tweetsButton" class="ui orange label" ng-click="tweetStatus.switch = 'off'; refreshTweets()" style="margin-bottom: 1.5em;">New Tweets
+                </span>
+            </div>
+            <div ng-switch-when="off"></div>
+            <div ng-switch-default></div>
+        </div><!--end newTweetStatus -->
+        <div ng-repeat="Member in users" ng-cloak xpnkid="{{Member.XpnkID}}">
+            <div class="tweeter-container">
+                <h2 class="ui tweeter-title" ng-model="tweeterID">{{Member.TweeterID}}</h2><!--TO DO add fname lname to json file and display those here instead of tweeterID-->
+                <row>
+                    <div style="float: left; width: 21%; margin-right: -10px;">
+                        <img ng-src="{{Member.ProfileImg}}" id="{{Member.TweeterID}}" class="content" style="height: 65px; width: 65px; border-radius: 0.2857rem; margin-left: -15px;" profile-image>
+                    </div>
+                    <div xpnkID={{Member.XpnkID}} style="height: 34px; margin-right: -17px;" ng-cloak>
+
+                        <button id="twitter-btn" href="#" class="ui labeled icon button compact feedslider primary mini" ng-click="whichposts = 'twitter'; showTweets = !showTweets " ng-model="whichposts" ng-cloak><i class="twitter icon" ng-cloak></i>{{ thisTweets[Member.XpnkID][0].TwitterPosts.length }}</button>
+
+                        <button id="instagram-btn" href="#" class="ui labeled icon button compact feedslider primary mini" ng-click="whichposts = 'instagram'; showInstas = !showInstas " ng-model="whichposts" ng-cloak><i class="instagram icon" ng-cloak></i>{{ instagrams[Member.XpnkID][0].InstagramPosts.length }}</button>
+
+                        <button id="facebook-btn" href class="ui labeled icon button compact unavail feedslider primary mini" ng-click="facebook = !facebook" ng-model="reveal" ng-cloak><i class="facebook icon" ng-cloak></i>{{facebook.length}}</button>
+
+                        <button id="linkedin-btn" href class="ui labeled icon button compact unavail feedslider primary mini" ng-click="linkedin = !linkedin" ng-model="reveal" ng-cloak><i class="linkedin icon" ng-cloak></i>{{linkedin.length}}</button>
+                        <!--  <button id="hide-btn"><class="ui button mini" ng-click="reveal=0" ng-model="reveal">Hide</button>  -->
+                    </div>
+                </row>
+                <row style="margin-right: -17px;">
+                        <button id="pinterest-btn" href class="ui labeled icon button compact unavail feedslider primary mini" ng-click="pinterest = !pinterest" ng-model="reveal" ng-cloak><i class="pinterest icon" ng-cloak></i>{{pinterest.length}}</button>
+
+                        <button id="snapchat-btn" href="#" class="ui labeled icon button compact unavail feedslider primary mini" ng-click="snapchat = !snapchat" ng-model="reveal" ng-cloak><i class="icon snapchat" ng-cloak></i>{{snapchat.length}}</button>
+
+                        <button id="slack-btn" href class="ui labeled icon button compact unavail feedslider primary mini" ng-click="slack = !slack" ng-model="reveal" ng-cloak><i class="slack icon" ng-cloak></i>{{slack.length}}</button>
+
+                        <button id="disqus-btn" href class="ui labeled icon button compact unavail feedslider primary mini" ng-click="disqus = !disqus" ng-model="reveal" ng-cloak><i class="disqus icon" ng-cloak></i>{{disqus.length}}</button>
+                </row>
+            </div>
+            <div ng-switch="whichposts">
+                <instarender ng-show="showInstas" ng-switch-when="instagram"></instarender>
+                <twender ng-show="showTweets" ng-switch-when="twitter"> </twender>    
+            </div>
+        </div>
+    </div>
+</div>
+<!--end group-member-posts-->
