@@ -25,16 +25,36 @@ h2.tweeter-title {
 
 .tweeter-container {
 	margin-bottom: 1em;
+	margin-bottom: 2em;
 }
 
-div.tweet-window {
-	max-height: 400px;
+div.tweet-window, div.instagram-window {
+	height: 400px;
 	overflow: scroll;
 	margin: 15px 0 15px 0;
 	-webkit-overflow-scrolling: touch;
 }
 
+div.instagram-post {
+  margin-bottom: 15px;
+  margin-left: auto;
+  margin-right: auto;
+  width: 300px;
+}
 
+.feedslider {
+	width: 35px;
+	vertical-align: top!important;
+    margin-bottom: 5px!important;
+}
+
+.ui.labeled.icon.button {
+  min-height: 30.84px;
+}
+
+.ui.primary.button.unavail {
+  background-color: #bebebe;
+}
 
 .animate-refresh.ng-enter, 
 .animate-refresh.ng-leave, 
