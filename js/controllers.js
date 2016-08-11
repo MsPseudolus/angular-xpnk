@@ -113,7 +113,7 @@ TODO - add back in our own state param for additional security
 */		
 	}
 
-	$scope.oauthio_key = 'X2__GNhzcc6fng7PNt9t7euQwpQ';
+	$scope.oauthio_key = '';
 
 	function init_oauthio() {
 		OAuth.initialize($scope.oauthio_key);
