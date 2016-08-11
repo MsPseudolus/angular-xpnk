@@ -1,0 +1,43 @@
+
+	<div class="ui two column centered row" style="max-width: 380px !important;">
+		<div class="column five wide computer ten wide tablet sixteen wide mobile">
+			<span id="xapnik-header" style="text-align: center;"><h2 style="color: #1EB3AD;">xapnik</h2></span>
+		</div>
+	</div><!--end row-->	
+	<div class="ui two column centered row">
+		<div ng-controller="Users" class="column five wide computer ten wide tablet sixteen wide mobile" style="max-width: 380px !important;">
+			<div class="ui list users">
+				<div class="ui item user card">			
+				<!--TODO implement a responsive x-column grid, each user in her own column and the tweets a ui segment div within that column-->
+					<div memberposts>
+					</div>
+				</div>
+			</div>		
+		</div>
+	</div><!--end row-->
+	<div class="ui active page dimmer">
+	  <div ng-controller="Users" class="content"">
+	    <div class="center">
+		    <div></div>
+		    <div id="invite-content" ui-view style="width: 300px; margin-left: auto; margin-right: auto; font-size: 20px; line-height: 1.4; font-weight: 700;">
+			    <p>Hey there!</p>
+			    <p>You're invited to join<BR>
+			    <span class="ui teal label big" style="margin-top: 10px; margin-bottom: 10px;">{{group_name}}</span><BR>
+			    on Xapnik<br>to make it easy to boost each other online and in real life :-)</p>
+			    <p>It's free. &nbsp; Are you into it?</p>
+			    <div style="width: 300px; margin-left: auto; margin-right: auto; font-size: 20px; line-height: 1.4; font-weight: 700;">
+			    	<div class="ui animated fade ui inverted white button" tabindex="0" ui-sref="invite-reminder">
+				    	<div class="visible content">Not Yet</div>
+				    	<div class="hidden content">Aw! OK.</div>
+				    </div>
+				    <a class="ui animated fade ui inverted teal button" tabindex="0" ui-sref="sixtyseconds">
+				    	<div class="visible content">Heck to the Yeah! (yes)</div>
+				    	<div class="hidden content">Woot!</div>
+				    </a>
+				</div>    
+		    </div>	
+		    <div></div>
+	    </div>
+	    </div>
+	  </div>
+	</div>

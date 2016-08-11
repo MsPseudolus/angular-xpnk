@@ -1,6 +1,12 @@
 angular.module('xpnkApp.controllers', [])
 
-.controller('Users', function Users($http, $scope, $rootScope, $routeParams, $cacheFactory, $timeout, $window, getTweetsJSON, memberTweetsFilter, $attrs, getInstagramsJSON) {
+/*
+*
+* Everything we need to set up a group before we can retrieve its content
+*
+*/
+
+.controller('Users', function Users($http, $scope, $rootScope, $routeParams, $location, $cacheFactory, $timeout, $window, getTweetsJSON, memberTweetsFilter, $attrs, igTokenService, getInstagramsJSON) {
 	$scope.group_name = $routeParams.groupName;
 	$http({method: 'GET', url: './data/'+$scope.group_name+'_users.json'}).success(function(data){		
 		$scope.users = data;
@@ -10,7 +16,7 @@ angular.module('xpnkApp.controllers', [])
     load_instagrams();
 
     function load_tweets () {
-		// $scope.tweetStatus.switch = "off"; //so our New Tweets button does not display
+		// $scope.tweetStatus.switch = "off"; //so our New posts button does not display
 		getTweetsJSON.getJSON().then(function(tweetsJSONObj){
 			$scope.thisData = tweetsJSONObj.data;
 			console.log("I AM thisData:");
@@ -25,7 +31,7 @@ angular.module('xpnkApp.controllers', [])
 	};	//end load_tweets()
 	
 	function load_instagrams () {
-		//$scope.instagramStatus.switch = "off"; //so our New Tweets button does not display
+		//$scope.instagramStatus.switch = "off"; //so our New posts button does not display
 		console.log("I AM LOAD_INSTAGRAMS");
 
 		getInstagramsJSON.getJSON().then(function(instagramsJSONObj){
@@ -47,10 +53,99 @@ angular.module('xpnkApp.controllers', [])
 			$scope.instagram_count = $scope.igData.length;
 
 			$rootScope.oldInstagrams = $scope.igData;
-
-			//gettheinstagrams();
-		});
+			
+		}); // end gettheinstagrams();
 	};	//end load_instagrams()
+
+	$scope.gotogroup = function () {
+		var location = $location.absUrl();
+		var locsplit = location.split('/#');
+		var locrel = locsplit[1].split('/invite');
+		var locredir = locrel[0];
+		$location.url(locredir);
+	}
+
+	/*
+	*
+	* Instagram user oauth functions used by invite process
+	*
+	*/
+
+	$scope.ig_auth = function() {
+		console.log("IG_AUTH ENGAGED");
+		init_oauthio();
+		var location = $location.absUrl();
+		var locsplit = location.split('/#');
+		var locrel = locsplit[1].split('/invite');
+		var locredir = locrel[0];
+
+		OAuth.popup('instagram').done(function(result) {
+			$location.url(locredir);
+			console.log( result );
+			var userigtoken = result.access_token;
+			var userigid = result.user.id;
+			var userigusername = result.user.username;
+			var userigfullname = result.user.full_name;
+			var userigavatar = result.user.profile_picture;
+			var provider = result.provider;
+			console.log(userigusername + " has granted Xapnik access!" + provider + " is the provider.");
+			console.log(location + " is our location.");
+
+			var data = {
+				access_token: userigtoken,
+				insta_userid: userigid,
+				insta_username: userigusername
+			}
+			igTokenService.save({}, data)
+		})
+/*
+TODO - add back in our own state param for additional security
+
+		retrieve_token(function( err, token ){
+			authenticate( token, function( err ){
+				if(!err) {
+					console.log("WE HAVE AUTH!");
+				} else {
+					console.log("PROBLEMZ: " + err);
+				}
+			})
+		})
+*/		
+	}
+
+	$scope.oauthio_key = '';
+
+	function init_oauthio() {
+		OAuth.initialize($scope.oauthio_key);
+	}
+/*
+	function retrieve_token( callback ){
+		$http({method: 'GET', url: 'http://localhost:2665/oauth/token'}).success(function( data, status ){		
+			callback(null, data.token);
+    	});
+	}	
+*/	
+
+/*
+	function authenticate( token, callback ) {
+		OAuth.popup('instagram', {
+			state: token
+		})
+		.done(function( r ) {
+			$http({ method: 'POST', url: 'http://localhost:2665/oauth/signin', data: { code: r.code } }).success(function( data, status ){		
+				var userigtoken = data.access_token;
+				var userigid = data.user.id;
+				var userigusername = data.user.username;
+				var userigfullname = data.user.full_name;
+				var userigavatar = data.user.profile_picture;
+				console.log(userigusername + "has been authenticated and access token received!");
+    		});
+		})
+		.fail(function( e ) {
+			console.log( e );
+		});
+	}
+*/	
 
 /*TODO -- see if we can cache all these social media network scripts
 	function load_scripts () {
@@ -66,6 +161,13 @@ angular.module('xpnkApp.controllers', [])
 */	
 
 }) //end Users controller
+
+/*
+*
+* Tweets controller has evolved to control all the content (Instagram, etc.)
+* name will be changed during a subsequent refactoring
+*
+*/
 
 .controller('Tweets', function Tweets($http, $scope, $attrs, $routeParams, $attrs, $filter, $interval, $timeout, $compile, $interpolate, $parse, $rootScope, $cacheFactory, newTweetsService, tweetsCompare, isolateNewTweets, addNewTweetsService, getTweetsJSON, newInstagramsService, instagramsCompare, isolateNewInstagrams, addNewInstagramsService) {
 
@@ -94,9 +196,12 @@ angular.module('xpnkApp.controllers', [])
 		load_tweets();
 	};	//refreshTweets used by the New Tweets button in the template
 
-	/****************************************************************************
-	 * TWITTER FUNCTIONS
-	 *****************************************************************************/
+	/*
+	*
+	* Twitter content functions
+	*
+	*/
+
 	function getthetweets () {
 
 		var tweeterscount = $scope.tweeterscount;
@@ -194,9 +299,12 @@ angular.module('xpnkApp.controllers', [])
 		//console.log("TWEETS CHANGED");
 	
 	//});
-	/****************************************************************************
-	 * INSTAGRAM FUNCTIONS
-	 *****************************************************************************/
+
+	/*
+	*
+	* Instagram content functions
+	*
+	*/
 
 	function getuserinstagrams(instagrammer) {
 		console.log('I AM GETUSERINSTAGRAMS');
@@ -245,14 +353,13 @@ angular.module('xpnkApp.controllers', [])
 				console.log("I AM newCount:");
 				console.log($scope.newCount);
 
-			});//end isolateNewTweets.iterateTweets().then
+			});//end isolateNewInstagrams.iterateInstagrams().then
 
-		});//end tweetsCompare.compareTweets().then
+		});//end instagramsCompare.compareTweets().then
 
 
-	}; //newTweetsOrNot
-
+	}; //newInstagramsOrNot
 				
-})//end Tweets controller
+})//end Instagrams controller
 
 //uses nested controllers in the html to display tweets per user
