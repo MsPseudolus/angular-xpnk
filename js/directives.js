@@ -52,3 +52,20 @@ angular.module('xpnkApp.directives', [])
         }    
     }
 })
+
+/*
+* 
+* Onboarding process directives
+*
+*/
+.directive('welcome', function($compile, $timeout, $templateRequest){
+    return {
+        templateUrl: 'welcome.html'
+    }
+})
+
+.directive('sixtyseconds', function($compile, $timeout, $templateRequest){
+    return {
+        templateUrl: 'sixtyseconds.html'
+    }
+})

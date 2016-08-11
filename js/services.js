@@ -136,6 +136,10 @@ function($sce) {
  * INSTAGRAM SERVICES
  *********************************************************************/
 
+ .factory('igTokenService', function ($resource) {
+    return $resource('http://localhost:9090/api/v1/ig_auth');
+ })
+
 .factory('getInstagramsJSON', function ($http, $rootScope, $routeParams) {
     var data = [];
     var instagramsJSONObj = {
