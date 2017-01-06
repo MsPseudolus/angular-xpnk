@@ -1,8 +1,8 @@
 			
 		    <p><span class="ui teal label big" style="margin-top: 7px; margin-bottom: 7px;">{{group_name}}</span></p>
-		    <p>If you'd like to share your Instagrams with {{group_name}}, click on the Instagram button to give Xapnik permission.</p> <p>If not, just click the Skip button.</p>
+		    <p>Share your Instagrams with<br>{{group_name}}.</p><p> Click the Instagram button to give Xapnik permission.</p> 
 		     <div style="width: 300px; margin-left: auto; margin-right: auto; font-size: 20px; line-height: 1.4; font-weight: 700;">
-		    	<a class="ui animated fade ui inverted white button" tabindex="0" ng-click="gotogroup()">
+		    	<a class="ui animated fade ui inverted white button" tabindex="0" ui-sref="disqus-user-auth">
 			    	<div class="visible content">Skip</div>
 			    	<div class="hidden content">Skippy!</div>
 			    </a>
@@ -11,3 +11,5 @@
 				  Instagram
 				</a>
 			</div>
+
+			<!--group/?groupName={{group_name}}&response_type=code&state=instagram"-->

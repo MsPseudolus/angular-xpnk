@@ -2,7 +2,7 @@
 <!--begin xpnk-tweets-->
 			<div class="tweet-window" data-thisTweeter={{Member.XpnkID}}>
 				<div xpnkID={{Member.XpnkID}} data-ng-repeat="tweet in thisData" data-ng-if="tweet.XpnkID == Member.XpnkID">
-					<div xpnkID={{Member.XpnkID}} id="tweets-container" data-ng-repeat="thistweet in tweet.TwitterPosts" class="animate-refresh" ng-cloak>
+					<div xpnkID={{Member.XpnkID}} id="tweets-container" data-ng-repeat="thistweet in tweet.TwitterPosts | orderBy: '-TweetID' " class="animate-refresh" ng-cloak>
 						<span id="{{thistweet.TweetID}}" embed-template ng-cloak></span>
 					</div>
 				</div>
