@@ -6,11 +6,13 @@ angular.module('xpnkApp', [
     'ngAnimate',
     'ngRoute',
     'ui.router',
-    'ngAnimate',
+    'ngStorage',
     'oauthio',
-    'ngResource'])
+    'ngResource',
+    'Deg.SlackApi',
+    'xpnkConstants'])
 
-.config(function($routeProvider, $stateProvider, $urlRouterProvider){
+.config(function($routeProvider, $stateProvider, $urlRouterProvider, $httpProvider){
     $routeProvider
         .when('/group/:groupName',{
             templateUrl: 'group.html'
@@ -21,8 +23,8 @@ angular.module('xpnkApp', [
         .when('/about', {
             templateUrl: 'hello-world.html'
         })
-        .when('/group/:groupName/:instaCode',{
-            templateUrl: 'group.html'
+        .when('/group/:groupName/slack-invite', {
+            templateUrl: 'slack-invite.html'
         });
 
     $stateProvider.state('sixtyseconds', {
@@ -37,7 +39,12 @@ angular.module('xpnkApp', [
     $stateProvider.state('insta-user-auth', {
         templateUrl: 'insta-user-auth.html'
     })
+    $stateProvider.state('disqus-user-auth', {
+        templateUrl: 'disqus-user-auth.html'
+    })
     $stateProvider.state('invite-great-job', {
         templateUrl: 'invite-great-job.html'
     });
-});
+
+    $httpProvider.interceptors.push('headerInterceptor');
+})

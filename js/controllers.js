@@ -6,49 +6,59 @@ angular.module('xpnkApp.controllers', [])
 *
 */
 
-.controller('Users', function Users($http, $scope, $rootScope, $routeParams, $location, $cacheFactory, $timeout, $window, getTweetsJSON, memberTweetsFilter, $attrs, igTokenService, getInstagramsJSON) {
+.controller('Users', function Users($http, $resource, $scope, $rootScope, $routeParams, $state, $localStorage, $location, $cacheFactory, $timeout, $window, $interval, xpnk_api, OAUTHIO_KEY, xpnkAuth, getTweetsJSON, memberTweetsFilter, $attrs, twitterTokenService, igTokenService, disqusTokenService, getInstagramsJSON, getDisqusJSON, slackSvc, slackTokenService) {
 	$scope.group_name = $routeParams.groupName;
 	$http({method: 'GET', url: './data/'+$scope.group_name+'_users.json'}).success(function(data){		
 		$scope.users = data;
     });
+
+    var group_object = ['XpnkID', '-XpnkID', 'TweeterID', '-TweeterID']
+    $scope.randomUser = group_object[Math.floor(Math.random() * group_object.length)];
     
     load_tweets();  
     load_instagrams();
+    load_disqus();
 
     function load_tweets () {
 		// $scope.tweetStatus.switch = "off"; //so our New posts button does not display
 		getTweetsJSON.getJSON().then(function(tweetsJSONObj){
 			$scope.thisData = tweetsJSONObj.data;
-			console.log("I AM thisData:");
-			console.log($scope.thisData);
 			$scope.thisTweets = _.groupBy($scope.thisData, "XpnkID");
-			console.log("I AM thisTweets:");
-			console.log($scope.thisTweets);
 			$scope.tweeterscount = $scope.thisData.length;
-			console.log("TWEETERS COUNT:");
-			console.log($scope.tweeterscount);
 		});
 	};	//end load_tweets()
+
+	//process that checks for new tweets every 60 seconds
+	$interval(function(){
+		if ($rootScope.checkdata){$scope.olddata = $rootScope.checkdata};
+		getTweetsJSON.getJSON().then(function(tweetsJSONObj){
+			$scope.newCheck = angular.equals($scope.olddata, $rootScope.checkdata);
+			if ($scope.newCheck === true){
+			//if largest tweet_ID in checkdata is bigger than largest tweet_ID in olddata, take all tweets with tweet_ID bigger than biggest tweet_ID in olddata and append to view div, then run twitterwidgets on them (or vice versa) -- except this doesn't drop expired tweets
+			$scope.tweetStatus.switch = "on"; //show the New Tweets button
+			};
+		});//.then
+	;}, 60000);//end interval
+
+	$scope.tweetStatus = {};
+
+	$scope.refreshTweets = function () {
+		load_tweets();
+		load_instagrams();
+	};	//refreshTweets used by the New Tweets button in the template
+
 	
 	function load_instagrams () {
 		//$scope.instagramStatus.switch = "off"; //so our New posts button does not display
-		console.log("I AM LOAD_INSTAGRAMS");
-
 		getInstagramsJSON.getJSON().then(function(instagramsJSONObj){
 
 			$scope.igData = instagramsJSONObj.data;
-			console.log("I AM igData:");
-			console.log($scope.igData);
 
 			$scope.instagrams = _.groupBy($scope.igData, "XpnkID");
-			console.log("I AM $SCOPE.INSTAGRAMS:");
-			console.log($scope.instagrams);
 
 			$scope.instagramscount = _.size($scope.instagrams);
 
 			$scope.instagrammers = _.keys($scope.instagrams);
-			console.log("I AM INSTAGRAMMERS:");
-			console.log($scope.instagrammers);
 
 			$scope.instagram_count = $scope.igData.length;
 
@@ -56,6 +66,35 @@ angular.module('xpnkApp.controllers', [])
 			
 		}); // end gettheinstagrams();
 	};	//end load_instagrams()
+
+	//process that checks for new instagrams every 10 minutes
+	$interval(function(){
+		if ($rootScope.checkIGdata){$scope.oldIGdata = $rootScope.checkIGdata};
+
+		getInstagramsJSON.getJSON().then(function(instagramsJSONObj){
+			$scope.newIGCheck = angular.equals($scope.oldIGdata, $rootScope.checkIGdata);
+			if ($scope.newIGCheck === true){
+			}else{
+			//if largest tweet_ID in checkdata is bigger than largest tweet_ID in olddata, take all tweets with tweet_ID bigger than biggest tweet_ID in olddata and append to view div, then run twitterwidgets on them (or vice versa) -- except this doesn't drop expired tweets
+			$scope.tweetStatus.switch = "on"; //show the New Posts button
+			};
+		});//.then
+	;}, 100000);//end interval
+
+	$scope.tweetStatus = {};
+
+	$scope.refreshInstagrams = function () {
+		load_instagrams();
+	};	//refreshTweets used by the New Tweets button in the template
+
+	function load_disqus () {
+		// $scope.tweetStatus.switch = "off"; //so our New posts button does not display
+		getDisqusJSON.getJSON().then(function(disqusJSONObj){
+			$scope.disqusData = disqusJSONObj.data;
+			$scope.thisDisqus = _.groupBy($scope.disqusData, "XpnkID");
+			$scope.disquserscount = $scope.disqusData.length;
+		});
+	};	//end load_tweets()
 
 	$scope.gotogroup = function () {
 		var location = $location.absUrl();
@@ -65,101 +104,161 @@ angular.module('xpnkApp.controllers', [])
 		$location.url(locredir);
 	}
 
-	/*
+    /*
 	*
-	* Instagram user oauth functions used by invite process
+	* XPNK user oauth functions
 	*
 	*/
+	$scope.xpnk_auth = function(next_function) {
+		xpnkAuth.Auth().then(function(response){
+			if (response.status == 200) {
+				return next_function;
+			} else {
+				return error;
+			}
+		});
+	}	
 
-	$scope.ig_auth = function() {
-		console.log("IG_AUTH ENGAGED");
+	/*
+	*
+	* Slack user oauth functions used by invite/onboard process
+	*
+	*/	
+	$scope.slack_auth = function() {
+		
 		init_oauthio();
-		var location = $location.absUrl();
-		var locsplit = location.split('/#');
-		var locrel = locsplit[1].split('/invite');
-		var locredir = locrel[0];
+		
+		var locredir = $state.go('twit-user-auth');
+  
+		OAuth.popup('slack').done(function(result) {
+			var userslacktoken = result.access_token;
+			var provider = result.provider;
+			
+            $http({method: 'GET', url: 'https://slack.com/api/users.identity?token='+userslacktoken}).success(function(data){		
+		        var slackuser = data;
+		        var slackusertoken = userslacktoken;
+			    var slackuserid = slackuser.user.id;
+			    var slackusername = slackuser.user.name;
+			    var data = {
+					access_token: slackusertoken,
+					slack_userid: slackuserid,
+					slack_name: slackusername
+			    }
+
+			    slackTokenService.save({}, data);
+
+			    xpnkAuth.Login();
+
+			    slackerid = data.slack_userid;
+			    xpnkAuth.Get_xpnkid(slackerid);
+			    
+		    });    
+		})	            
+	}	
+
+	/*
+	*
+	* Twitter user oauth functions used by invite/onboard process
+	*
+	*/
+	$scope.twitter_auth = function() {
+
+		init_oauthio();
+
+		var locredir = $state.go('insta-user-auth');
+
+		OAuth.popup('twitter').done(function(result) {
+			
+			var usertwttrtoken = result.oauth_token;
+			var usertwttrsecret = result.oauth_token_secret;
+			var pulltwttrid = usertwttrtoken.split("-");
+			var usertwttrid = pulltwttrid[0];
+			var provider = result.provider;
+			var data = {
+				access_token: usertwttrtoken,
+				user_secret: usertwttrsecret,
+				twitter_userid: usertwttrid,
+			}
+
+			twitterTokenService.save({}, data);
+		})
+	}	
+
+	/*
+	*
+	* Instagram user oauth functions used by invite/onboard process
+	*
+	*/
+	$scope.ig_auth = function() {
+
+		init_oauthio();
+		
+		var locredir = $state.go('disqus-user-auth');
 
 		OAuth.popup('instagram').done(function(result) {
-			$location.url(locredir);
-			console.log( result );
 			var userigtoken = result.access_token;
 			var userigid = result.user.id;
 			var userigusername = result.user.username;
 			var userigfullname = result.user.full_name;
 			var userigavatar = result.user.profile_picture;
 			var provider = result.provider;
-			console.log(userigusername + " has granted Xapnik access!" + provider + " is the provider.");
-			console.log(location + " is our location.");
-
 			var data = {
 				access_token: userigtoken,
 				insta_userid: userigid,
 				insta_username: userigusername
 			}
-			igTokenService.save({}, data)
-		})
-/*
-TODO - add back in our own state param for additional security
 
-		retrieve_token(function( err, token ){
-			authenticate( token, function( err ){
-				if(!err) {
-					console.log("WE HAVE AUTH!");
-				} else {
-					console.log("PROBLEMZ: " + err);
+			igTokenService.save({}, data);
+		})
+	}	
+
+    /*
+	*
+	* Disqus user oauth functions used by invite/onboard process
+	*
+    */
+	$scope.disqus_auth = function() {
+		console.log("DISQUS_AUTH ENGAGED");
+		init_oauthio();
+		
+		var locredir = $state.go('invite-great-job');
+
+		var userdisqustoken;
+		var provider;
+		var userdisqusid;
+		var userdisqususername;
+		var userdisqusrefresh_token;
+
+		OAuth.popup('disqus').done(function(result) {
+			userdisqustoken = result.access_token;
+			provider = result.provider;
+			var userdisqusid;
+			var userdisqususername;
+
+			$scope.disqus_me = {};
+			result.me().done(function(data) {
+				$scope.disqus_me = data;
+				userdisqusid = $scope.disqus_me.raw.response.id;
+				userdisqususername = $scope.disqus_me.raw.response.username;
+
+				var data = {
+					access_token: userdisqustoken,
+					disqus_userid: userdisqusid,
+					disqus_username: userdisqususername,
 				}
+				disqusTokenService.save({}, data)
+			})
+			.fail(function (err) {
+				console.log("Result.me() failed:  " + err);
 			})
 		})
-*/		
-	}
+	}	
 
-	$scope.oauthio_key = '';
+	$scope.oauthio_key = OAUTHIO_KEY;
 
 	function init_oauthio() {
 		OAuth.initialize($scope.oauthio_key);
 	}
-/*
-	function retrieve_token( callback ){
-		$http({method: 'GET', url: 'http://localhost:2665/oauth/token'}).success(function( data, status ){		
-			callback(null, data.token);
-    	});
-	}	
-*/	
-
-/*
-	function authenticate( token, callback ) {
-		OAuth.popup('instagram', {
-			state: token
-		})
-		.done(function( r ) {
-			$http({ method: 'POST', url: 'http://localhost:2665/oauth/signin', data: { code: r.code } }).success(function( data, status ){		
-				var userigtoken = data.access_token;
-				var userigid = data.user.id;
-				var userigusername = data.user.username;
-				var userigfullname = data.user.full_name;
-				var userigavatar = data.user.profile_picture;
-				console.log(userigusername + "has been authenticated and access token received!");
-    		});
-		})
-		.fail(function( e ) {
-			console.log( e );
-		});
-	}
-*/	
-
-/*TODO -- see if we can cache all these social media network scripts
-	function load_scripts () {
-		console.log("I AM LOAD SCRIPTS");
-
-		var scriptCache = $cacheFactory.get('scriptCache');
-		$http.get('https://platform.instagram.com/en_US/embeds.js', {
-			cache: scriptCache
-		});
-
-		$scope.instagramjs = "HELLO!";//scriptCache.get('//platform.instagram.com/en_US/embeds.js');
-	};
-*/	
-
 }) //end Users controller
 
 /*
@@ -170,31 +269,6 @@ TODO - add back in our own state param for additional security
 */
 
 .controller('Tweets', function Tweets($http, $scope, $attrs, $routeParams, $attrs, $filter, $interval, $timeout, $compile, $interpolate, $parse, $rootScope, $cacheFactory, newTweetsService, tweetsCompare, isolateNewTweets, addNewTweetsService, getTweetsJSON, newInstagramsService, instagramsCompare, isolateNewInstagrams, addNewInstagramsService) {
-
-	//create the page
-	$scope.tweetStatus = {};
-//process that checks for new tweets every 60 seconds
-	$interval(function(){
-		if ($rootScope.checkdata){$scope.olddata = $rootScope.checkdata};
-		console.log("I AM OLDDATA:");
-		console.log($scope.olddata);
-		getTweetsJSON.getJSON().then(function(tweetsJSONObj){
-			console.log("I AM INTERVAL CHECKDATA:");
-			console.log($rootScope.checkdata);
-			$scope.newCheck = angular.equals($scope.olddata, $rootScope.checkdata);
-			if ($scope.newCheck === true){
-			console.log("NO NEW TWEETS")}else{
-			console.log("NEW TWEETS! NEW TWEETS!");
-			//if largest tweet_ID in checkdata is bigger than largest tweet_ID in olddata, take all tweets with tweet_ID bigger than biggest tweet_ID in olddata and append to view div, then run twitterwidgets on them (or vice versa) -- except this doesn't drop expired tweets
-			$scope.tweetStatus.switch = "on"; //show the New Tweets button
-			};
-		});//.then
-	;}, 60000);//end interval
-
-
-	$scope.refreshTweets = function () {
-		load_tweets();
-	};	//refreshTweets used by the New Tweets button in the template
 
 	/*
 	*
@@ -242,7 +316,7 @@ TODO - add back in our own state param for additional security
 		$scope.tweeter_tweets = tweetertweets[0];
 		console.log('TWEETER TWEETS:')
 		console.log($scope.tweeter_tweets);
-		return $scope.tweeter_tweets;
+		
 		
 		var tweetertweetscount = $scope.tweeter_tweets.length;
 		console.log('TWEETER TWEETS COUNT:');
@@ -256,6 +330,8 @@ TODO - add back in our own state param for additional security
 			console.log("THIS TWEET ID");
 			console.log($scope.theTweetID);
 		}
+
+		return $scope.tweeter_tweets;
 		//embedtweetertweets(tweetertweets);
 	};//end gettweetertweets()		
 			
@@ -322,7 +398,6 @@ TODO - add back in our own state param for additional security
 
 		}
 		$scope.user_instagrams = userinstagrams;
-		console.log($scope.user_instagrams);
 
 	};//end getuserinstagrams()
 
@@ -330,16 +405,12 @@ TODO - add back in our own state param for additional security
 	function checkNewInstagrams(){
 		newInstagramsService.fetchNewInstagrams().then(function(newInstagramsObj) {
 			$scope.instagramsUpdate = newInstagramsObj;
-			console.log("I AM instagramsUpdate");
-			console.log($scope.instagramsUpdate);
 		});
 	};
 
 	function newInstagramsOrNot() {
 		instagramsCompare.compareInstagrams().then(function(compareObj) {
 			$scope.newInstagramsStatus = compareObj;
-			console.log("I AM newInstagramsOrNot");
-			console.log($scope.newInstagramssStatus);
 			if (compareObj === true) {
 				return
 			};//end if compareObj
@@ -347,12 +418,7 @@ TODO - add back in our own state param for additional security
 			isolateNewInstagrams.iterateInstagrams().then(function(instagramsToAddObj){
 
 				$scope.whatsNewObj = instagramsToAddObj.newInstagramssLength;
-				console.log("I AM whatsNewObj:");
-				console.log($scope.whatsNewObj);
 				$scope.newCount = $scope.whatsNewObj.length;
-				console.log("I AM newCount:");
-				console.log($scope.newCount);
-
 			});//end isolateNewInstagrams.iterateInstagrams().then
 
 		});//end instagramsCompare.compareTweets().then

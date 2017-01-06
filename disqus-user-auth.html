@@ -1,0 +1,14 @@
+		<div ng-controller="Users" class="content"">	
+		    <p><span class="ui teal label big" style="margin-top: 7px; margin-bottom: 7px;">{{group_name}}</span></p>
+		    <p>Share your Disqus comments with<br>{{group_name}}.</p><p>Click the Disqus button to give Xapnik permission.</p>
+		     <div style="width: 300px; margin-left: auto; margin-right: auto; font-size: 20px; line-height: 1.4; font-weight: 700;">
+		    	<a class="ui animated fade ui inverted white button" tabindex="0" ng-click="gotogroup()">
+			    	<div class="visible content">Skip</div>
+			    	<div class="hidden content">Skippy!</div>
+			    </a>
+			    <a class="ui disqus button" ng-click='disqus_auth()'>
+				  <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 200 200"><rect width="30" height="30" fill="#2E9FFF"/><path d="M102.5 167.5c-16.5 0-31.6-6-43.3-16L30.5 155.4l11.1-27.4c-3.9-8.5-6-18-6-28 0-37.3 30-67.5 67-67.5 37 0 67 30.2 67 67.5C169.5 137.3 139.5 167.5 102.5 167.5zM139.1 99.8v-0.2c0-19.5-13.7-33.4-37.4-33.4h-25.6v67.5h25.2C125.2 133.8 139.1 119.3 139.1 99.8L139.1 99.8zM102 117.2h-7.5V82.8h7.5c11 0 18.3 6.3 18.3 17.1v0.2C120.2 111 113 117.2 102 117.2z" fill="#FFF"/></svg>
+				  Disqus
+				</a>
+			</div>
+		</div>	

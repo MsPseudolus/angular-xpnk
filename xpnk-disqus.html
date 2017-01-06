@@ -1,0 +1,25 @@
+        <!--begin xpnk-disqus-->
+            <div class="disqus-window" data-thisDisqusUser={{Member.XpnkID}}>
+                <div xpnkID={{Member.XpnkID}} data-ng-repeat="comments in disqusData" data-ng-if="comments.XpnkID == Member.XpnkID">
+					<div xpnkID={{Member.XpnkID}} id="disqus-container" data-ng-repeat="thisDisqus in comments.DisqusPosts | orderBy: '-DisqusPID' " class="animate-refresh disqus-post" ng-cloak>
+						<a ng-href="{{thisDisqus.DisqusPermalink}}" target="_blank">
+						<div class="ui card xpnkcard" style="text-align: left; margin-bottom: 25px;">
+							<div ng-if="thisDisqus.DisqusMedia != '' " class="image"><img src="{{thisDisqus.DisqusMedia}}"></div>
+							<div class="content">
+								<div class="header disqus-favicon">
+									<img src="{{thisDisqus.DisqusFavicon}}">{{thisDisqus.DisqusTitle}}
+								</div> 
+								<div class="ui left pointing large label description" ng-cloak>
+									<div ng-bind-html="thisDisqus.DisqusOembed | trust" class="disqus-embed"></div>
+								</div>
+								<div class="meta disqus-meta">
+									{{thisDisqus.DisqusDate | date:"MM/dd/yyyy 'at' h:mma"}}
+								</div>
+							</div>
+						</div>
+						</a>
+					</div>
+				</div>
+            </div>
+          
+        <!--end xpnk-disqus-->

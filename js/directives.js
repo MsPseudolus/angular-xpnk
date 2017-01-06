@@ -39,6 +39,11 @@ angular.module('xpnkApp.directives', [])
     }
 })
 
+.directive ('disqusrender', function($compile, $timeout, $templateRequest) {
+    return {
+        templateUrl: 'xpnk-disqus.html'
+    }
+})
 /* 
 * It's necessary to delay the execution of the instagram script, 
 * otherwise it runs before the embeds are fully loaded
