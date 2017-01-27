@@ -92,12 +92,21 @@ angular.module('xpnkApp.services', [])
 
 /*********************************************************************
  * SLACK SERVICES
- * this is the only xpnk user endpoint that doesn't require the xpnk
- * token, as it is an entry point for new users and checks the db for
- * the user's slack id before issuing an xpnk token
  *********************************************************************/
+
+//this is the only xpnk user endpoint that doesn't require the xpnk
+//token, as it is an entry point for new users and checks the db for
+//the user's slack id before issuing an xpnk token
  .factory('slackTokenService', function ($resource, xpnk_api) {
     return $resource(xpnk_api + 'slack_new_member');
+ })
+
+ .factory('slackGroupTokenService', function($resource) {
+    return $resource('https://slack.com/api/oauth.access');
+ })
+
+ .factory('newGroupFromSlackService', function ($resource, xpnk_api) {
+    return $resource(xpnk_api + 'slack_new_group');
  })
 
 /*********************************************************************
