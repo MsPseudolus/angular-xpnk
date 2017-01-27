@@ -2,6 +2,78 @@ angular.module('xpnkApp.controllers', [])
 
 /*
 *
+* Functions for newcomers
+*
+*/
+.controller('Public', function Public($scope, $compile, $window, $location, $http, SLACK_CLIENT_ID, SLACK_CLIENT_SECRET, slackGroupTokenService, newGroupFromSlackService){
+	var slack_url = 'https://slack.com/oauth/authorize?scope=incoming-webhook,commands,bot,team:read,users:read,chat:write:user&client_id='+SLACK_CLIENT_ID+'&state=xpnk_add_to_slack'+'&redirect_uri=http://localhost:8000/added_to_Slack';
+	$scope.add_to_slack = function() {
+		$window.open(slack_url, '_self');
+	}
+
+	var request_params = $location.search();
+	var slack_team_code = request_params.slack_code;
+	console.log("SLACK GROUP CODE:  "+slack_team_code);
+	var slack_token_url = 'https://slack.com/api/oauth.access?client_id='+SLACK_CLIENT_ID+'&client_secret='+SLACK_CLIENT_SECRET+'&code='+slack_team_code+"&redirect_uri=http://localhost:8000/added_to_Slack";
+	//var slack_token_url = "https://slack.com/api/oauth.access?client_id=6146359360.78348665680&client_secret=e9aca6435a4e1fc82655fb181a6ede43&code="+slack_team_code+"&redirect_uri=http://localhost:8000/added_to_Slack";
+
+	console.log("SLACK_TOKEN_URL:  "+slack_token_url);
+
+	var get_slack_team = function() {
+
+		$http({method: 'GET', 
+			   url: slack_token_url})
+		.success(function(data){
+			if(data.access_token) {console.log('THERE IS A SLACK TOKEN.');}
+			var slack_access_token = data.access_token;
+			var slack_team_name = data.team_name;
+			var slack_team_id = data.team_id;
+			var slack_webhook_object = {};
+			slack_webhook_object = data.incoming_webhook;
+			var slack_webhook = slack_webhook_object.url;
+			var slack_webhook_channel = slack_webhook_object.channel;
+			var slack_webhook_config = slack_webhook_object.configuration_url;
+			var slack_bot_object = {};
+			slack_bot_object = data.bot;
+			var slack_bot_id = slack_bot_object.bot_user_id;
+			var slack_bot_token = slack_bot_object.bot_access_token;
+
+			console.log("SLACK_ACCESS_TOKEN:  "+slack_access_token);
+			console.log("SLACK_TEAM_NAME:  "+slack_team_name);
+			console.log("SLACK_TEAM_ID:  "+slack_team_id);
+			console.log("SLACK_BOT_ID:  "+slack_bot_id);
+			console.log("SLACK_BOT_TOKEN:  "+slack_bot_token);
+
+			$http({method: 'POST', url: 'http://localhost:9090/api/v1/slack_new_group?team_token='+slack_access_token+'&bot_token='+slack_bot_token}).success(function(response) {
+				var new_group_response = {};
+				new_group_response = response;
+				console.log("NEW_GROUP_RESPONSE:  "+JSON.stringify(new_group_response));
+			}) 
+		})
+	}
+
+	if (slack_team_code) {
+		get_slack_team();
+	}	else {
+		console.log("NO SLACK TEAM CODE.");
+	}
+
+/*
+	$scope.create_new_slack_group = function() {
+		var request_params = $location.search();
+		var slack_team_token = request_params.token;
+		console.log("SLACK TEAM TOKEN:  "+slack_team_token);
+		var data = {
+			team_token: slack_team_token
+	    }
+
+		newGroupFromSlackService.save({}, data);
+	}
+*/
+})
+
+/*
+*
 * Everything we need to set up a group before we can retrieve its content
 *
 */
@@ -133,16 +205,19 @@ angular.module('xpnkApp.controllers', [])
 		OAuth.popup('slack').done(function(result) {
 			var userslacktoken = result.access_token;
 			var provider = result.provider;
-			
+			var locredir = $state.go('twit-user-auth');
             $http({method: 'GET', url: 'https://slack.com/api/users.identity?token='+userslacktoken}).success(function(data){		
 		        var slackuser = data;
 		        var slackusertoken = userslacktoken;
 			    var slackuserid = slackuser.user.id;
 			    var slackusername = slackuser.user.name;
+			    var slackavatar = slackuser.user.image_72;
+			    console.log ("SLACK AVATAR: " + slackavatar);
 			    var data = {
 					access_token: slackusertoken,
 					slack_userid: slackuserid,
-					slack_name: slackusername
+					slack_name: slackusername,
+					slack_avatar: slackavatar
 			    }
 
 			    slackTokenService.save({}, data);

@@ -23,6 +23,15 @@ angular.module('xpnkApp', [
         .when('/about', {
             templateUrl: 'hello-world.html'
         })
+        .when('/welcome', {
+            templateUrl: 'welcome.html'
+        })
+        .when('/added_to_Slack', {
+            templateUrl: 'added-to-Slack.html'
+        })
+        .when('/added_to_Slack_ii', {
+            templateUrl: 'added-to-Slack_ii.html'
+        })
         .when('/group/:groupName/slack-invite', {
             templateUrl: 'slack-invite.html'
         });
