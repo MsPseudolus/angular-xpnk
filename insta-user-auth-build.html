@@ -1,0 +1,15 @@
+			
+		    <p><span class="ui teal label big" style="margin-top: 7px; margin-bottom: 7px;">{{group_name}}</span></p>
+		    <p>Share your Instagrams with<br>{{group_name}}.</p><p> Click the Instagram button to give Xapnik permission.</p> 
+		     <div ng-controller="NewMember" style="width: 300px; margin-left: auto; margin-right: auto; font-size: 20px; line-height: 1.4; font-weight: 700;">
+		    	<a class="ui animated fade ui inverted white button" tabindex="0" ng-click='build_member_skip("ig")'>
+			    	<div class="visible content">Skip</div>
+			    	<div class="hidden content">Skippy!</div>
+			    </a>
+			    <a class="ui instagram button" ng-click='build_member_ig()'>
+				  <i class="instagram icon"></i>
+				  Instagram
+				</a>
+			</div>
+
+			<!--group/?groupName={{group_name}}&response_type=code&state=instagram"-->

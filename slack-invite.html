@@ -1,5 +1,5 @@
 
-	<div class="ui two column centered row" style="max-width: 380px !important;">
+	<div ng-controller="Invite" class="ui two column centered row" style="max-width: 380px !important;">
 		<div class="column five wide computer ten wide tablet sixteen wide mobile">
 			<span id="xapnik-header" style="text-align: center;"><h2 style="color: #1EB3AD;">xapnik</h2></span>
 		</div>
@@ -20,19 +20,7 @@
 	    <div class="center">
 		    <div></div>
 		    <div id="invite-content" ui-view style="width: 300px; margin-left: auto; margin-right: auto; font-size: 20px; line-height: 1.4; font-weight: 700;">
-			    <p>Hey there!</p>
-			    <p>You're invited to join the<BR>
-			    <span class="ui teal label big" style="margin-top: 10px; margin-bottom: 10px;">{{group_name}}</span><BR>
-			    Xapnik group<br>to make it easy to boost each other online and in real life :-)</p>
-			    <p>It's free. </p> <p>To get started please confirm your identity by clicking the 'Signin With Slack' button.</p>
-			    <div style="width: 300px; margin-left: auto; margin-right: auto; font-size: 20px; line-height: 1.4; font-weight: 700;">
-				    <div><a href="" ng-click='slack_auth()'><img alt="Sign in with Slack" height="40" width="172" src="https://platform.slack-edge.com/img/sign_in_with_slack.png" srcset="https://platform.slack-edge.com/img/sign_in_with_slack.png 1x, https://platform.slack-edge.com/img/sign_in_with_slack@2x.png 2x" /></a>
-				    </div>
-				    <div class="ui animated fade ui inverted white button" style="margin-top: 5px;" tabindex="0" ui-sref="invite-reminder">
-				    	<div class="visible content">Not Yet</div>
-				    	<div class="hidden content">Aw! OK.</div>
-				    </div>
-				</div>    
+			      
 		    </div>	
 		    <div></div>
 	    </div>

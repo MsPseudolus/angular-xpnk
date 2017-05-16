@@ -14,9 +14,8 @@ angular.module('xpnkApp.controllers', [])
 	var request_params = $location.search();
 	var slack_team_code = request_params.slack_code;
 	console.log("SLACK GROUP CODE:  "+slack_team_code);
-	var slack_token_url = 'https://slack.com/api/oauth.access?client_id='+SLACK_CLIENT_ID+'&client_secret='+SLACK_CLIENT_SECRET+'&code='+slack_team_code+"&redirect_uri=http://localhost:8000/added_to_Slack";
-	//var slack_token_url = "https://slack.com/api/oauth.access?client_id=6146359360.78348665680&client_secret=e9aca6435a4e1fc82655fb181a6ede43&code="+slack_team_code+"&redirect_uri=http://localhost:8000/added_to_Slack";
-
+	var slack_token_url = 'https://slack.com/api/oauth.access?client_id='+SLACK_CLIENT_ID+'&client_secret='+SLACK_CLIENT_SECRET+'&code='+slack_team_code+"&redirect_uri=http://xapnik.com:8000/added_to_Slack";
+	
 	console.log("SLACK_TOKEN_URL:  "+slack_token_url);
 
 	var get_slack_team = function() {
@@ -44,7 +43,8 @@ angular.module('xpnkApp.controllers', [])
 			console.log("SLACK_BOT_ID:  "+slack_bot_id);
 			console.log("SLACK_BOT_TOKEN:  "+slack_bot_token);
 
-			$http({method: 'POST', url: 'http://localhost:9090/api/v1/slack_new_group?team_token='+slack_access_token+'&bot_token='+slack_bot_token}).success(function(response) {
+			$http({method: 'POST', url: 'http://xapnik.com:9090/api/v1/slack_new_group?team_token='+slack_access_token+'&bot_token='+slack_bot_token})
+			.success(function(response) {
 				var new_group_response = {};
 				new_group_response = response;
 				console.log("NEW_GROUP_RESPONSE:  "+JSON.stringify(new_group_response));
@@ -72,21 +72,456 @@ angular.module('xpnkApp.controllers', [])
 */
 })
 
+.controller('Invite', function Invite($scope, $location, $localStorage, $routeParams, $state, $http, xpnk_api, GroupObj){
+	var request_params 					= $location.search();
+	var xpnk_token						= request_params.xpnk_tkn;
+	var xpnk_group_name					= $routeParams.groupName;
+	var check_invite_url				= xpnk_api+"check_user_invite?xpnk_token="+xpnk_token+"&xpnk_group_name="+xpnk_group_name;
+	$scope.check_invite_data 			= "";
+	$http({method: 'GET', url: check_invite_url})
+		.success(function(data){		
+			$scope.check_invite_data 	= data;
+			GroupObj.setObj($scope.check_invite_data, "slack");
+			group_id = GroupObj.data.group_id;
+			console.log("GroupObj.group_id:  " + group_id);
+			console.log('CHECK_INVITE_DATA:  '+ JSON.stringify($scope.check_invite_data));
+    		console.log('UR IN LIKE FLYNN');
+    		gotologin();
+    	})
+    	.error(function(data){
+    		console.log( "line 92" );
+	    	$state.go('one-moment');
+	    	console.log('Sorry. Your token is not a match for this group.');
+    	})
+
+    function gotologin (source) {
+		var locredir = 'group/'+xpnk_group_name+'/reg-login';
+		console.log( "Relocating you to: " + locredir );
+		$location.url(locredir);
+	}		
+})
+
+.controller('NewMember', function NewMember($scope, $location, $localStorage, $state, $http, xpnk_api, OAUTHIO_KEY, GroupObj, MemberObj, UpdateUser, InsertNewUser, AddMemberToGroup, xpnkAuth){
+	
+	function new_member ( auth_obj, auth_source ) {
+		console.log( "new_member args:" + JSON.stringify( auth_obj ) );
+		MemberObj.createObj();
+		console.log( "MemberObj created:  " + JSON.stringify( MemberObj ) );
+
+		if ( auth_source == "twitter" ){
+
+			user_id 								= auth_obj.Twitter_ID;
+
+			$http( {method: 'GET', url: xpnk_api + 'users/twitter?id=' + user_id} )
+            .success(function( data ){ 
+            	console.log( "new_member.data:  " + JSON.stringify( data ) );
+	          	db_user_object 						= data;
+	          	console.log( "db_user_object:  " + JSON.stringify( db_user_object ) );
+	          	if ( db_user_object.User_ID == 0 ) {
+	          		MemberObj.updateObj( auth_obj );
+	          	} else if ( db_user_object.User_ID != 0) {
+	          		MemberObj.updateObj( db_user_object );
+	          	}
+	          	console.log( "MemberObj after new_member:  " + JSON.stringify( MemberObj ) );
+	          	klingonOrGalliano ( MemberObj );
+          	})
+		} else if ( auth_source == "ig" ){
+
+			user_id 								= auth_obj.Insta_userid;
+
+			$http( {method: 'GET', url: xpnk_api + 'users/ig?id=' + user_id} )
+            .success( function( data ){ 
+            	db_user_object						= data;
+            	console.log( "db_user_object:  " + JSON.stringify( db_user_object ) );
+	          	if ( db_user_object.User_ID == 0 ) {
+	          		MemberObj.updateObj( auth_obj );
+	          	} else if ( db_user_object.User_ID != 0) {
+	          		MemberObj.updateObj( db_user_object );
+	          	}
+	          	console.log( "MemberObj after new_member:  " + JSON.stringify( MemberObj ) );
+
+	          	klingonOrGalliano ( MemberObj );
+          	})
+			console.log( "It's an Instagram ID." );
+		}
+	}
+	
+	$scope.new_auth_twitter 			= function () {
+    	init_oauthio();
+
+       	OAuth.popup('twitter').done(function(result) {
+
+        	var usertwttrtoken 			= result.oauth_token;
+			var usertwttrsecret 		= result.oauth_token_secret;
+			var provider 				= result.provider;
+
+        	result.me().done(function(data){
+
+				var usertwttrname 		= data.alias;
+				var usertwttrid 		= data.raw.id_str;
+				var usertwttravatar		= data.raw.profile_image_url;
+
+			    var auth_obj 			= {
+			    	Twitter_ID 		: usertwttrid,
+			    	Twitter_user 	: usertwttrname,
+				    Twitter_token 	: usertwttrtoken,
+				    Twitter_secret 	: usertwttrsecret,	    
+				    Profile_image 	: usertwttravatar
+			    }
+			console.log( "new_auth_twitter mydata: " + JSON.stringify( auth_obj ) ); 
+			new_member( auth_obj, "twitter" );	    
+			});
+		})
+    }	
+
+    $scope.new_auth_ig				= function () {
+    	init_oauthio();
+
+    	OAuth.popup('instagram').done(function(result) {
+    		var userig_token			= result.access_token;
+    		var userig_username			= result.user.username;
+    		var userig_id				= result.user.id;
+    		var userig_avatar			= result.user.profile_picture;
+
+    		var auth_obj = {
+		  			Insta_user  	:  userig_username,
+		  			Insta_userid 	:  userig_id,
+		  			Insta_token 	:  userig_token,
+		  			Profile_image	:  userig_avatar
+	  			}
+	  		new_member(auth_obj, "ig")	
+    	});
+    }
+
+    $scope.build_member_twitter			= function () {
+    	init_oauthio();
+
+    	OAuth.popup('twitter').done(function(result) {
+
+        	var usertwttrtoken 			= result.oauth_token;
+			var usertwttrsecret 		= result.oauth_token_secret;
+			var provider 				= result.provider;
+
+        	result.me().done(function(data){
+
+				var usertwttrname 		= data.alias;
+				var usertwttrid 		= data.id;
+	
+			    var updateUser = {
+		  			Twitter_user  	:  usertwttrname,
+		  			Twitter_ID 	 	:  usertwttrid,
+		  			Twitter_token 	:  usertwttrtoken,
+		  			Twitter_secret  :  usertwttrsecret
+	  			}
+	  		MemberObj.updateObj( updateUser );
+	  		console.log( "build_member_twitter MemberObj: " + JSON.stringify( MemberObj ) );
+			klingonOrGalliano( MemberObj );    
+			});
+		})
+    }
+
+    $scope.build_member_ig			= function () {
+    	init_oauthio();
+
+    	OAuth.popup('instagram').done(function(result) {
+    		var userig_token			= result.access_token;
+    		var userig_username			= result.user.username;
+    		var userig_id				= result.user.id;
+
+    		var updateUser = {
+    				Insta_token 	:  userig_token,
+		  			Insta_user  	:  userig_username,
+		  			Insta_userid 	:  userig_id
+	  			}
+	  		console.log("MemberObj before build_member_ig update: " + JSON.stringify(MemberObj));	
+	  		MemberObj.updateObj(updateUser);
+	  		console.log("build_member_ig MemberObj: " + JSON.stringify(MemberObj));	
+	  		klingonOrGalliano( MemberObj );
+    	});
+    }
+
+    $scope.build_member_disqus			= function () {
+    	init_oauthio();
+
+    	var userdisqustoken;
+		var provider;
+		var userdisqusid;
+		var userdisqususername;
+		var userdisqusrefresh_token;
+
+		OAuth.popup('disqus').done(function(result) {
+			userdisqustoken = result.access_token;
+			provider = result.provider;
+			var userdisqusid;
+			var userdisqususername;
+
+			$scope.disqus_me = {};
+			result.me().done(function(data) {
+				$scope.disqus_me = data;
+				userdisqusid = $scope.disqus_me.raw.response.id;
+				userdisqususername = $scope.disqus_me.raw.response.username;
+
+				var updateUser = {
+					Disqus_username : userdisqususername,
+      				Disqus_userid   : userdisqusid,
+      				Disqus_token    : userdisqustoken
+				}
+			console.log("MemberObj before build_member_disqus update: " + JSON.stringify(MemberObj));		
+			MemberObj.updateObj(updateUser);
+			console.log("MemberObj after build_member_disqus update: " + JSON.stringify(MemberObj));
+			klingonOrGalliano( MemberObj );	
+			})
+			.fail(function (err) {
+				console.log("Result.me() failed:  " + err);
+			})
+			
+		})
+		
+    }
+
+    $scope.build_member_skip			= function ( network ) {
+		switch ( network ) {
+			case 'tw':
+				var updateUser = {
+					Twitter_user  	:  "skippedName",
+		  			Twitter_ID 	 	:  "skippedID",
+		  			Twitter_token 	:  "skippedToken",
+		  			Twitter_secret  :  "skippedSecret"
+				}
+				MemberObj.updateObj( updateUser );
+				console.log( "build_member_skip_tw MemberObj: " + JSON.stringify( MemberObj ) );
+				klingonOrGalliano( MemberObj );
+				break;
+			case 'ig':
+				var updateUser = {
+					Insta_token 	:  "skippedToken",
+		  			Insta_user  	:  "skippedName",
+		  			Insta_userid 	:  "skippedID"
+				}	
+				MemberObj.updateObj( updateUser );
+				console.log( "build_member_skip_ig MemberObj: " + JSON.stringify( MemberObj ) );
+				klingonOrGalliano( MemberObj );
+				break;
+			case 'dsq':
+				var updateUser = {
+					Disqus_username : "skippedName",
+	  				Disqus_userid   : "skippedID",
+	  				Disqus_token    : "skippedToken"
+				}	
+				MemberObj.updateObj( updateUser );
+				console.log( "build_member_skip_dsq MemberObj: " + JSON.stringify( MemberObj ) );
+				klingonOrGalliano( MemberObj );
+				break;	
+	    }
+    }
+
+    function klingonOrGalliano( MemberObj ) {
+    	console.log( "KlingonOrGalliano has received:  ");
+    	console.log( "Twitter_ID:  " + MemberObj.data.Twitter_ID);
+    	console.log( "Insta_userid:  " + MemberObj.data.Insta_userid);
+    	console.log( "Disqus_token:  " + MemberObj.data.Disqus_token);
+    	if (
+    		MemberObj.data.Twitter_ID != ''
+    		&& MemberObj.data.Insta_userid != ''
+    		&& MemberObj.data.Disqus_token != ''
+    		) 
+    	{
+    		console.log( "Galliano!:  " + JSON.stringify( MemberObj ) );
+    		GallianoProcess( MemberObj );
+    		//empty the dbuserObj
+    		//empty the MemberObj
+    		//empty the GroupObj
+    	}   
+    		else if (
+    		MemberObj.data.Twitter_ID != ''
+    		&& MemberObj.data.Insta_userid != ''
+    		) 
+    	{
+    		console.log("Vulcan!");
+    		VulcanProcess( MemberObj );
+
+    	}	else if (
+    		( MemberObj.data.Twitter_ID != '' || MemberObj.data.Insta_userid != '') 
+    		&& MemberObj.data.Disqus_token != '' )
+    	{
+    		console.log("Earthling!  " + JSON.stringify( MemberObj ));
+    		EarthlingProcess( MemberObj );
+
+    	}
+    		else 
+    	{
+    		console.log ("Klingon!");
+    		
+    		KlingonProcess( MemberObj );
+    	}		
+    }
+
+    function GallianoProcess ( MemberObj ) {
+    	console.log( "Galliano sees User_ID:  " + MemberObj.data.User_ID);
+    	if ( MemberObj.data.User_ID != '' ) {
+    		console.log("Sending this to user_update:  " + JSON.stringify(MemberObj));
+    		UserUpdate					= update_user( MemberObj );
+    		if (UserUpdate == 1) {
+    			console.log( "UserUpdate == 1" );
+    		} else {
+    			console.log( "UserUpdate != 1" );
+    		}
+	    	add_group_member( MemberObj.data.User_ID );
+	  	}	
+	  	else if ( MemberObj.data.User_ID == '' ) {
+	  		NewUserObj 					= create_new_user ( MemberObj );
+	  		if ( NewUserObj == 1 ) {
+	  			console.log( "NewUserObj == 1");
+	  			if ( MemberObj.data.Twitter_ID != '' ) {
+	  				console.log( "Going to fetch twitter_id: " + MemberObj.data.Twitter_ID);
+	  				user_id 			= MemberObj.data.Twitter_ID;
+	  				console.log( "going to fetch user_id: " + user_id);
+	  				var geturl 			= xpnk_api + 'users/twitter?id=' + user_id;
+	  				console.log ( "geturl for getting xpnk_id is:  " + geturl );
+	  				$http( {method: 'GET', url: geturl} )
+            		.success(function(data){ 
+            			console.log( " users/twitter returned: " + JSON.stringify( data ));
+	  					Xpnk_ID 		= data.User_ID;
+	  					console.log( " GallianoProcess thinks it's adding this user to the group:  " + Xpnk_ID);
+	  					add_group_member( Xpnk_ID );
+	  				})
+	  				.error( function( data ){
+	  					console.log( "Something went wrong with getting the xpnk id: " + data );
+	  				})	
+	  			} 
+	  			else if ( MemberObj.data.Insta_userid != '' ) {
+	  				user_id 			= MemberObj.data.Insta_userid;
+	  				$http({method: 'GET', url: xpnk_api + 'users/ig?id=' + user_id})
+            		.success(function(data){ 
+	  					Xpnk_ID 		= data.User_ID;
+	  					console.log( " GallianoProcess is going to add this user to the group:  " + Xpnk_ID);	
+	  					add_group_member( Xpnk_ID );
+	  				})
+	  				.error( function( data ){
+	  					console.log( "Something went wrong with getting the xpnk id: " + data);
+	  				})
+	  			}	
+	  		}
+	  		
+	  	} 
+    	else {
+	  		console.log ("Is the User_ID missing from MemberObj? I need that to add the new member.")
+		}
+	}	
+
+    function VulcanProcess ( MemberObj ){
+    	var updateUser = {
+	  			Twitter_user 	:  MemberObj.Twitter_user,
+	  			Twitter_ID 		:  MemberObj.Twitter_ID,
+	  			Twitter_token	:  MemberObj.Twitter_token,
+	  			Twitter_secret  :  MemberObj.Twitter_secret,
+	  			Insta_user  	:  MemberObj.Insta_user,
+	  			Insta_userid 	:  MemberObj.Insta_userid,
+	  			Insta_token 	:  MemberObj.Insta_token
+  			}
+  		MemberObj.updateObj(updateUser);	
+  		console.log( "line 425" );
+    	$state.go('disqus-user-auth-build');
+    }
+
+    function EarthlingProcess ( MemberObj ) {
+		var updateUser = {
+			Disqus_username : MemberObj.Disqus_username,
+			Disqus_userid   : MemberObj.Disqus_userid,
+			Disqus_token    : MemberObj.Disqus_token
+		}	
+		MemberObj.updateObj(updateUser);	
+
+    	if (MemberObj.Twitter_token == "") {
+  			console.log ( "Earthling process new MemberObj: " + JSON.stringify( MemberObj ) );
+  			$state.go('twit-user-auth-build');
+
+		} else if ( MemberObj.Insta_token == "") {
+  			console.log ( "Earthling process new MemberObj: " + JSON.stringify( MemberObj ) );
+  			$state.go('insta-user-auth-build');
+  		}	
+    }
+
+    function KlingonProcess ( MemberObj ){
+    	if ( MemberObj.data.Twitter_ID != '') {
+  			$state.go('insta-user-auth-build');
+		} else if ( MemberObj.data.Insta_userid != '' ) {
+  			$state.go('twit-user-auth-build');
+		}
+    }
+
+    function create_new_user ( MemberObj ) {
+    	var data = {
+			TwitterUser			:  MemberObj.data.Twitter_user,		
+			InstaUser			:  MemberObj.data.Insta_user,
+			TwitterID			:  MemberObj.data.Twitter_ID,
+			TwitterToken   		:  MemberObj.data.Twitter_token,
+			InstaUserID			:  MemberObj.data.Insta_userid,
+			InstaAccessToken	:  MemberObj.data.Insta_token,
+			DisqusUserName		:  MemberObj.data.Disqus_username,
+			DisqusUserID		:  MemberObj.data.Disqus_userid,
+			DisqusAccessToken	:  MemberObj.data.Disqus_token,
+			ProfileImage		:  MemberObj.data.Profile_image
+    	}
+    	InsertNewUser.insert( data );
+    	return 1;
+    }
+
+    function update_user ( MemberObj ){
+    	var data = {
+	    	user_ID 			:  MemberObj.data.User_ID,
+			slack_userid 		:  MemberObj.data.Slack_ID,
+			slack_name 			:  MemberObj.data.Slack_name,
+			twitter_user 		:  MemberObj.data.Twitter_user,
+			twitter_ID 			:  MemberObj.data.Twitter_ID,
+			twitter_token 		:  MemberObj.data.Twitter_token,
+			twitter_secret 		:  MemberObj.data.Twitter_secret,
+			insta_user 			:  MemberObj.data.Insta_user,
+			insta_userid 		:  MemberObj.data.Insta_userid,
+			insta_token 		:  MemberObj.data.Insta_token,
+			disqus_username 	:  MemberObj.data.Disqus_username,
+			disqus_userid 		:  MemberObj.data.Disqus_userid,
+			disqus_token 		:  MemberObj.data.Disqus_token,
+			profile_image 		:  MemberObj.data.Profile_image
+		}
+		console.log( "update_user data:  " + JSON.stringify( data ));
+		UpdateUser.update( data );	
+    }
+
+    function add_group_member (Xpnk_ID) {
+    	AddMemberToGroup.addMember(GroupObj.data.group_id,Xpnk_ID)
+  		.then( function() {
+  			console.log("add_group_member is calling $scope.login..."),
+  			$scope.login(GroupObj.data.group_source),
+  			function( errorMessage ) {
+  			console.warn( errorMessage );
+  		}
+  			
+  		});
+    }
+
+    function init_oauthio() {
+		OAuth.initialize($scope.oauthio_key);
+	}
+})
+
 /*
 *
 * Everything we need to set up a group before we can retrieve its content
 *
 */
 
-.controller('Users', function Users($http, $resource, $scope, $rootScope, $routeParams, $state, $localStorage, $location, $cacheFactory, $timeout, $window, $interval, xpnk_api, OAUTHIO_KEY, xpnkAuth, getTweetsJSON, memberTweetsFilter, $attrs, twitterTokenService, igTokenService, disqusTokenService, getInstagramsJSON, getDisqusJSON, slackSvc, slackTokenService) {
-	$scope.group_name = $routeParams.groupName;
+.controller('Users', function Users( $http, $resource, $scope, $rootScope, $routeParams, $state, $localStorage, $location, $cacheFactory, $timeout, $window, $interval, xpnk_api, OAUTHIO_KEY, xpnkAuth, GroupObj, MemberObj, getTweetsJSON, memberTweetsFilter, $attrs, igTokenService, disqusTokenService, getInstagramsJSON, getDisqusJSON, slackSvc, slackTokenService) {
+	
+	$scope.group_name 					= $routeParams.groupName;
+
 	$http({method: 'GET', url: './data/'+$scope.group_name+'_users.json'}).success(function(data){		
 		$scope.users = data;
-    });
+    });    
 
     var group_object = ['XpnkID', '-XpnkID', 'TweeterID', '-TweeterID']
     $scope.randomUser = group_object[Math.floor(Math.random() * group_object.length)];
-    
+
     load_tweets();  
     load_instagrams();
     load_disqus();
@@ -100,7 +535,7 @@ angular.module('xpnkApp.controllers', [])
 		});
 	};	//end load_tweets()
 
-	//process that checks for new tweets every 60 seconds
+	//check for new tweets every 60 seconds
 	$interval(function(){
 		if ($rootScope.checkdata){$scope.olddata = $rootScope.checkdata};
 		getTweetsJSON.getJSON().then(function(tweetsJSONObj){
@@ -139,7 +574,7 @@ angular.module('xpnkApp.controllers', [])
 		}); // end gettheinstagrams();
 	};	//end load_instagrams()
 
-	//process that checks for new instagrams every 10 minutes
+	//check for new instagrams every 10 minutes
 	$interval(function(){
 		if ($rootScope.checkIGdata){$scope.oldIGdata = $rootScope.checkIGdata};
 
@@ -168,11 +603,36 @@ angular.module('xpnkApp.controllers', [])
 		});
 	};	//end load_tweets()
 
-	$scope.gotogroup = function () {
+	$scope.login = function(source) {
+		var source = source;
+		console.log( "$scope.login sees source as  " + source );
+		xpnkAuth.Login().then(function() {
+			console.log( "$scope.login is calling $scope.gotogroup..." );
+			$scope.gotogroup(source);
+		});
+	}
+
+	$scope.logout = function(){
+		xpnkAuth.Logout();
+
+	}
+
+	$scope.gotogroup = function (source) {
 		var location = $location.absUrl();
+		console.log( "gotogroup location: " + location );
 		var locsplit = location.split('/#');
-		var locrel = locsplit[1].split('/invite');
+		console.log( "gotogroup locsplit: " + locsplit );
+		if( source == "slack" ) {
+			console.log( "Source == slack." );
+			var locrel = locsplit[1].split('/reg-login');
+			console.log( "gotogroup locrel = " + locrel );
+		} else {
+		var locrel = locsplit[1].split('/reg-login');
+		}
 		var locredir = locrel[0];
+		console.log( "gotogroup locredir:  " + locredir );
+		MemberObj.emptyObj();
+		for (var key in db_user_object) delete db_user_object[key];
 		$location.url(locredir);
 	}
 
@@ -181,14 +641,28 @@ angular.module('xpnkApp.controllers', [])
 	* XPNK user oauth functions
 	*
 	*/
-	$scope.xpnk_auth = function(next_function) {
-		xpnkAuth.Auth().then(function(response){
-			if (response.status == 200) {
-				return next_function;
-			} else {
-				return error;
-			}
-		});
+	function xpnk_auth ( next_function ) {
+		console.log( "xpnk_auth was called..." );
+
+		var check_token = {
+	      method: 'POST',
+	      url: xpnk_api + 'xpnk_auth_check',
+	      headers: {
+	        'token' : $localStorage.xpnkToken,
+	    	}
+	    }	
+
+	    $http(check_token).success(function(data, status, headers){
+	      console.log("Authentication successful: " + status);
+	      success_status      = status;
+	      if ( success_status == 200 ) {
+	        console.log( " Status:  " + success_status );
+	        return;
+	      } else if ( success_status == 422 ) {
+	        console.log( " Status:  " + success_status );
+	        return next_function;
+	      }
+	    });
 	}	
 
 	/*
@@ -242,23 +716,31 @@ angular.module('xpnkApp.controllers', [])
 
 		var locredir = $state.go('insta-user-auth');
 
-		OAuth.popup('twitter').done(function(result) {
-			
-			var usertwttrtoken = result.oauth_token;
-			var usertwttrsecret = result.oauth_token_secret;
-			var pulltwttrid = usertwttrtoken.split("-");
-			var usertwttrid = pulltwttrid[0];
-			var provider = result.provider;
-			var data = {
-				access_token: usertwttrtoken,
-				user_secret: usertwttrsecret,
-				twitter_userid: usertwttrid,
-			}
+       	OAuth.popup('twitter').done(function(result) {
 
-			twitterTokenService.save({}, data);
+        	var usertwttrtoken = result.oauth_token;
+			var usertwttrsecret = result.oauth_token_secret;
+			var provider = result.provider;
+
+        	result.me().done(function(data){
+
+				var usertwttrname = data.alias;
+				var usertwttrid = data.id;
+
+			    var mydata = {
+				    access_token: usertwttrtoken,
+				    user_secret: usertwttrsecret,
+				    twitter_userid: usertwttrid,
+				    twitter_username: usertwttrname,
+			    }
+
+			    //check for existence of twitter_userid already in db	
+			    twitterTokenService.save({}, mydata);
+
+			});
 		})
 	}	
-
+	
 	/*
 	*
 	* Instagram user oauth functions used by invite/onboard process
@@ -334,7 +816,28 @@ angular.module('xpnkApp.controllers', [])
 	function init_oauthio() {
 		OAuth.initialize($scope.oauthio_key);
 	}
+
+	$scope.check_users = function() {
+		$http({method: 'GET', url: './data/'+$scope.group_name+'_users.json'}).
+			success(function(status){	
+				console.log( "$scope.check_users success fired" );	
+				var redirect = "group/" + $scope.group_name;
+				$location.url(redirect);
+    		}).
+    		error(function (status) {
+    			var group_name = $scope.group_name;
+    			console.log( "line 863" );
+    			$state.go('one-moment');
+    			//$location.url(redirect);
+    			$timeout(function() {
+	                $scope.check_users();
+	            }, 60000)
+
+		});		    
+	}	
 }) //end Users controller
+
+
 
 /*
 *
