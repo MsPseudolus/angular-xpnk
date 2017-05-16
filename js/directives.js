@@ -12,7 +12,6 @@ angular.module('xpnkApp.directives', [])
     }
 })
 
-//displays the tweets on the page
 .directive('embedTemplate', function($interpolate) {
     return {
         link: function($scope, $element, $attr){
@@ -66,6 +65,12 @@ angular.module('xpnkApp.directives', [])
 .directive('welcome', function($compile, $timeout, $templateRequest){
     return {
         templateUrl: 'welcome.html'
+    }
+})
+
+.directive('grouplogin', function($compile, $timeout, $templateRequest){
+    return {
+        templateUrl: 'reg-login.html'
     }
 })
 

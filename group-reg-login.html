@@ -1,4 +1,4 @@
-	<div class="ui two column centered row" style="max-width: 380px !important;">
+	<div ng-controller="NewMember" class="ui two column centered row" style="max-width: 380px !important;">
 		<div class="column five wide computer ten wide tablet sixteen wide mobile">
 			<span id="xapnik-header" style="text-align: center;"><h2 style="color: #1EB3AD;">xapnik</h2></span>
 		</div>
@@ -14,3 +14,15 @@
 			</div>		
 		</div>
 	</div><!--end row-->
+	<div class="ui active page dimmer">
+	  <div ng-controller="Users" class="content"">
+	    <div class="center">
+		    <div></div>
+		    <div id="login-content" ui-view style="width: 300px; margin-left: auto; margin-right: auto; font-size: 20px; line-height: 1.4; font-weight: 700;">
+			    <grouplogin></grouplogin>  
+		    </div>	
+		    <div></div>
+	    </div>
+	    </div>
+	  </div>
+	</div>

@@ -1,0 +1,16 @@
+			
+		<div ng-controller="Users" class="content">    
+		    <p><span class="ui teal label big" style="margin-top: 7px; margin-bottom: 7px;">{{group_name}}</span></p>
+		    <p>Hey, there!</p><p>Welcome to the<br>{{group_name}}<br>group.</p>
+		    <p>To get started, sign in with either Twitter or Instagram by clicking the button below.</p>
+		     <div ng-controller="NewMember" style="width: 300px; margin-left: auto; margin-right: auto; font-size: 20px; line-height: 1.4; font-weight: 700;">
+			    <a class="ui twitter button" ng-click='new_auth_twitter()'>
+				  <i class="twitter icon"></i>
+				  Twitter
+				</a>
+				<a class="ui instagram button" ng-click='new_auth_ig()'>
+				  <i class="instagram icon"></i>
+				  Instagram
+				</a>
+			</div>
+		</div>	

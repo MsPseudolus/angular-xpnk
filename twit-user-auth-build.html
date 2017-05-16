@@ -1,0 +1,15 @@
+			
+		<div ng-controller="Users" class="content"">    
+		    <p><span class="ui teal label big" style="margin-top: 7px; margin-bottom: 7px;">{{group_name}}</span></p>
+		    <p>Let's get started.</p> <p>Share your Tweets with<br>{{group_name}}.</p> <p>Just click the Twitter button to give Xapnik permission.</p>
+		     <div ng-controller="NewMember" style="width: 300px; margin-left: auto; margin-right: auto; font-size: 20px; line-height: 1.4; font-weight: 700;">
+		    	<a class="ui animated fade ui inverted white button" tabindex="0" ng-click='build_member_skip("tw")'>
+			    	<div class="visible content">Skip</div>
+			    	<div class="hidden content">Skipperoo!</div>
+			    </a>
+			    <a class="ui twitter button" ng-click='build_member_twitter()'>
+				  <i class="twitter icon"></i>
+				  Twitter
+				</a>
+			</div>
+		</div>	
