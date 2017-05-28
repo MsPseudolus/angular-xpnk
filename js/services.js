@@ -18,18 +18,18 @@ angular.module('xpnkApp.services', [])
  * XAPNIK AUTH SERVICES
  *********************************************************************/
 
-.factory('headerInterceptor', function ($q, $localStorage, xpnk_api) {
-	return {
-	  'request': function(config) {
-		var reqURL = config.url;
-		if ( reqURL.match(xpnk_api) ) {
-			config.headers.token = $localStorage.xpnkToken;
-			config.headers.xpnkid = $localStorage.xpnkID;
-			}  
-		return config;        
-	  }
-	}
-})  
+ .factory('headerInterceptor', function ($q, $localStorage, xpnk_api) {
+    return {
+      'request': function(config) {
+        var reqURL = config.url;
+        if ( reqURL.match(xpnk_api) ) {
+            config.headers.token = $localStorage.xpnkToken;
+            config.headers.xpnkid = $localStorage.xpnkID;
+            }  
+        return config;        
+      }
+    }
+  })  
 
 .factory('xpnkAuth', function($http, $resource, $localStorage, $state, $q, $route, $routeParams, xpnk_api, GroupObj, MemberObj) {
   var auth = {};
@@ -82,7 +82,7 @@ angular.module('xpnkApp.services', [])
         }
       });
     } else {
-      console.log( "I'm sorry but you are missing a token. Have you received and accepted an invitation to this group? You may want to try logging in again.");
+      console.log( "Looks like you need to login. If you haven't accepted an invitation to this group, you'll need to do that first.");
       return_val = false;
       deferred.resolve( return_val );
     }  
@@ -120,7 +120,7 @@ angular.module('xpnkApp.services', [])
 
   function TokenCheck() {
     if ($localStorage.xpnkToken) {
-      return $http.post('http://xapnik.com:9090/api/v1/xpnk_auth_check', {headers:{'token' : $localStorage.xpnkToken}})             
+      return $http.post('http://localhost:9090/api/v1/xpnk_auth_check', {headers:{'token' : $localStorage.xpnkToken}})             
       .then( function( response ){
           var user                    = $localStorage.xpnkID;
           return response.status;
@@ -392,7 +392,7 @@ angular.module('xpnkApp.services', [])
   }
   function handleError( response ) {
     if( ! angular.isObject( response.data ) || ! response.data.message ){
-      return( $q.reject( "An unkown error occurred." ) );
+      return( $q.reject( "An unknown error occurred." ) );
     }
     return( $q.reject( response.data.message ) );
   }
