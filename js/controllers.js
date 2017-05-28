@@ -14,7 +14,7 @@ angular.module('xpnkApp.controllers', [])
 	var request_params = $location.search();
 	var slack_team_code = request_params.slack_code;
 	console.log("SLACK GROUP CODE:  "+slack_team_code);
-	var slack_token_url = 'https://slack.com/api/oauth.access?client_id='+SLACK_CLIENT_ID+'&client_secret='+SLACK_CLIENT_SECRET+'&code='+slack_team_code+"&redirect_uri=http://xapnik.com:8000/added_to_Slack";
+	var slack_token_url = 'https://slack.com/api/oauth.access?client_id='+SLACK_CLIENT_ID+'&client_secret='+SLACK_CLIENT_SECRET+'&code='+slack_team_code+"&redirect_uri=http://localhost:8000/added_to_Slack";
 	
 	console.log("SLACK_TOKEN_URL:  "+slack_token_url);
 
@@ -43,7 +43,7 @@ angular.module('xpnkApp.controllers', [])
 			console.log("SLACK_BOT_ID:  "+slack_bot_id);
 			console.log("SLACK_BOT_TOKEN:  "+slack_bot_token);
 
-			$http({method: 'POST', url: 'http://xapnik.com:9090/api/v1/slack_new_group?team_token='+slack_access_token+'&bot_token='+slack_bot_token})
+			$http({method: 'POST', url: 'http://localhost:9090/api/v1/slack_new_group?team_token='+slack_access_token+'&bot_token='+slack_bot_token})
 			.success(function(response) {
 				var new_group_response = {};
 				new_group_response = response;
@@ -78,6 +78,8 @@ angular.module('xpnkApp.controllers', [])
 	var xpnk_group_name					= $routeParams.groupName;
 	var check_invite_url				= xpnk_api+"check_user_invite?xpnk_token="+xpnk_token+"&xpnk_group_name="+xpnk_group_name;
 	$scope.check_invite_data 			= "";
+	console.log("request params: ", request_params);
+	console.log("xpnk_token: " + xpnk_token);
 	$http({method: 'GET', url: check_invite_url})
 		.success(function(data){		
 			$scope.check_invite_data 	= data;
@@ -359,6 +361,10 @@ angular.module('xpnkApp.controllers', [])
     function GallianoProcess ( MemberObj ) {
     	console.log( "Galliano sees User_ID:  " + MemberObj.data.User_ID);
     	if ( MemberObj.data.User_ID != '' ) {
+    		var group = {};
+    		var group_id = GroupObj.data.group_id;
+    		$localStorage.xpnkID = MemberObj.data.User_ID;
+    		//first update the user's db record
     		console.log("Sending this to user_update:  " + JSON.stringify(MemberObj));
     		UserUpdate					= update_user( MemberObj );
     		if (UserUpdate == 1) {
@@ -366,7 +372,19 @@ angular.module('xpnkApp.controllers', [])
     		} else {
     			console.log( "UserUpdate != 1" );
     		}
-	    	add_group_member( MemberObj.data.User_ID );
+    		//if not in group already then add_group_member
+    		xpnkAuth.GetGroup( group_id ).then( function( response ){
+                group             = response;
+                if ( xpnkAuth.InGroup( group ) == 3 ) {
+                add_group_member( MemberObj.data.User_ID );
+                } else {
+                	$scope.login(GroupObj.data.group_source);
+                }
+            });
+		
+    			//add_group_member( MemberObj.data.User_ID );
+
+	    	
 	  	}	
 	  	else if ( MemberObj.data.User_ID == '' ) {
 	  		NewUserObj 					= create_new_user ( MemberObj );
@@ -410,6 +428,7 @@ angular.module('xpnkApp.controllers', [])
 	}	
 
     function VulcanProcess ( MemberObj ){
+    	//update MemberObj with Tw and IG creds
     	var updateUser = {
 	  			Twitter_user 	:  MemberObj.Twitter_user,
 	  			Twitter_ID 		:  MemberObj.Twitter_ID,
@@ -425,6 +444,8 @@ angular.module('xpnkApp.controllers', [])
     }
 
     function EarthlingProcess ( MemberObj ) {
+    	//update MemberObj with TW or IG creds
+		//update MemberObj with the Disqus creds
 		var updateUser = {
 			Disqus_username : MemberObj.Disqus_username,
 			Disqus_userid   : MemberObj.Disqus_userid,
@@ -443,6 +464,7 @@ angular.module('xpnkApp.controllers', [])
     }
 
     function KlingonProcess ( MemberObj ){
+    	//get missing TW/IG auth or skip
     	if ( MemberObj.data.Twitter_ID != '') {
   			$state.go('insta-user-auth-build');
 		} else if ( MemberObj.data.Insta_userid != '' ) {
@@ -463,6 +485,7 @@ angular.module('xpnkApp.controllers', [])
 			DisqusAccessToken	:  MemberObj.data.Disqus_token,
 			ProfileImage		:  MemberObj.data.Profile_image
     	}
+    	//send MemberObj to users/new endpoint
     	InsertNewUser.insert( data );
     	return 1;
     }
@@ -485,6 +508,7 @@ angular.module('xpnkApp.controllers', [])
 			profile_image 		:  MemberObj.data.Profile_image
 		}
 		console.log( "update_user data:  " + JSON.stringify( data ));
+		//send data to users/update endpoint
 		UpdateUser.update( data );	
     }
 
@@ -535,7 +559,7 @@ angular.module('xpnkApp.controllers', [])
 		});
 	};	//end load_tweets()
 
-	//check for new tweets every 60 seconds
+	//process that checks for new tweets every 60 seconds
 	$interval(function(){
 		if ($rootScope.checkdata){$scope.olddata = $rootScope.checkdata};
 		getTweetsJSON.getJSON().then(function(tweetsJSONObj){
@@ -574,7 +598,7 @@ angular.module('xpnkApp.controllers', [])
 		}); // end gettheinstagrams();
 	};	//end load_instagrams()
 
-	//check for new instagrams every 10 minutes
+	//process that checks for new instagrams every 10 minutes
 	$interval(function(){
 		if ($rootScope.checkIGdata){$scope.oldIGdata = $rootScope.checkIGdata};
 
@@ -710,6 +734,7 @@ angular.module('xpnkApp.controllers', [])
 	* Twitter user oauth functions used by invite/onboard process
 	*
 	*/
+	/*
 	$scope.twitter_auth = function() {
 
 		init_oauthio();
@@ -740,7 +765,8 @@ angular.module('xpnkApp.controllers', [])
 			});
 		})
 	}	
-	
+	*/
+
 	/*
 	*
 	* Instagram user oauth functions used by invite/onboard process
