@@ -88,6 +88,7 @@ angular.module('xpnkApp.controllers', [])
 			console.log("GroupObj.group_id:  " + group_id);
 			console.log('CHECK_INVITE_DATA:  '+ JSON.stringify($scope.check_invite_data));
     		console.log('UR IN LIKE FLYNN');
+    		$localStorage.xpnkInv		= 1;
     		gotologin();
     	})
     	.error(function(data){
@@ -375,7 +376,7 @@ angular.module('xpnkApp.controllers', [])
     		//if not in group already then add_group_member
     		xpnkAuth.GetGroup( group_id ).then( function( response ){
                 group             = response;
-                if ( xpnkAuth.InGroup( group ) == 3 ) {
+                if ( ( $localStorage.xpnkInv ) && ( xpnkAuth.InGroup( group ) == 3 ) ) {
                 add_group_member( MemberObj.data.User_ID );
                 } else {
                 	$scope.login(GroupObj.data.group_source);
