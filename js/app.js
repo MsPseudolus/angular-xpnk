@@ -7,11 +7,11 @@ angular.module('xpnkApp', [
     'ngRoute',
     'ui.router',
     'ngStorage',
-    'underscore',
     'oauthio',
     'ngResource',
     'Deg.SlackApi',
-    'xpnkConstants'])
+    'xpnkConstants',
+    'semantic.modals'])
 
 .config  (function( $routeProvider, $stateProvider, $urlRouterProvider, $httpProvider){
     $routeProvider
@@ -20,7 +20,6 @@ angular.module('xpnkApp', [
         })
         .when('/group/:groupName',{
             templateUrl: 'group.html',
-            //controller: 'AccessCheck',
             resolve: {
 
                 function ( $q, xpnkAuth, $route, $location ) {
