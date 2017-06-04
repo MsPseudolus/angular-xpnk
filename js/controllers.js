@@ -13,10 +13,7 @@ angular.module('xpnkApp.controllers', [])
 
 	var request_params = $location.search();
 	var slack_team_code = request_params.slack_code;
-	console.log("SLACK GROUP CODE:  "+slack_team_code);
 	var slack_token_url = 'https://slack.com/api/oauth.access?client_id='+SLACK_CLIENT_ID+'&client_secret='+SLACK_CLIENT_SECRET+'&code='+slack_team_code+"&redirect_uri=http://localhost:8000/added_to_Slack";
-	
-	console.log("SLACK_TOKEN_URL:  "+slack_token_url);
 
 	var get_slack_team = function() {
 
@@ -74,6 +71,7 @@ angular.module('xpnkApp.controllers', [])
 
 .controller('Invite', function Invite($scope, $location, $localStorage, $routeParams, $state, $http, xpnk_api, GroupObj){
 	var request_params 					= $location.search();
+	console.log( "Invite request params:  ", request_params );
 	var xpnk_token						= request_params.xpnk_tkn;
 	var xpnk_group_name					= $routeParams.groupName;
 	var check_invite_url				= xpnk_api+"check_user_invite?xpnk_token="+xpnk_token+"&xpnk_group_name="+xpnk_group_name;
@@ -105,7 +103,7 @@ angular.module('xpnkApp.controllers', [])
 })
 
 .controller('NewMember', function NewMember($scope, $location, $localStorage, $state, $http, xpnk_api, OAUTHIO_KEY, GroupObj, MemberObj, UpdateUser, InsertNewUser, AddMemberToGroup, xpnkAuth){
-	
+
 	function new_member ( auth_obj, auth_source ) {
 		console.log( "new_member args:" + JSON.stringify( auth_obj ) );
 		MemberObj.createObj();
@@ -361,9 +359,9 @@ angular.module('xpnkApp.controllers', [])
 
     function GallianoProcess ( MemberObj ) {
     	console.log( "Galliano sees User_ID:  " + MemberObj.data.User_ID);
+    	var group_id = $localStorage.xpnkGroup;
     	if ( MemberObj.data.User_ID != '' ) {
     		var group = {};
-    		var group_id = GroupObj.data.group_id;
     		$localStorage.xpnkID = MemberObj.data.User_ID;
     		//first update the user's db record
     		console.log("Sending this to user_update:  " + JSON.stringify(MemberObj));
@@ -374,17 +372,14 @@ angular.module('xpnkApp.controllers', [])
     			console.log( "UserUpdate != 1" );
     		}
     		//if not in group already then add_group_member
-    		xpnkAuth.GetGroup( group_id ).then( function( response ){
+			xpnkAuth.GetGroup( group_id ).then( function( response ){
                 group             = response;
                 if ( ( $localStorage.xpnkInv ) && ( xpnkAuth.InGroup( group ) == 3 ) ) {
-                add_group_member( MemberObj.data.User_ID );
+                	add_group_member( MemberObj.data.User_ID );
                 } else {
                 	$scope.login(GroupObj.data.group_source);
                 }
-            });
-		
-    			//add_group_member( MemberObj.data.User_ID );
-
+        	});
 	    	
 	  	}	
 	  	else if ( MemberObj.data.User_ID == '' ) {
@@ -514,7 +509,8 @@ angular.module('xpnkApp.controllers', [])
     }
 
     function add_group_member (Xpnk_ID) {
-    	AddMemberToGroup.addMember(GroupObj.data.group_id,Xpnk_ID)
+    	var this_group					= $localStorage.xpnkGroup;
+    	AddMemberToGroup.addMember(this_group, Xpnk_ID)
   		.then( function() {
   			console.log("add_group_member is calling $scope.login..."),
   			$scope.login(GroupObj.data.group_source),
@@ -536,14 +532,67 @@ angular.module('xpnkApp.controllers', [])
 *
 */
 
-.controller('Users', function Users( $http, $resource, $scope, $rootScope, $routeParams, $state, $localStorage, $location, $cacheFactory, $timeout, $window, $interval, xpnk_api, OAUTHIO_KEY, xpnkAuth, GroupObj, MemberObj, getTweetsJSON, memberTweetsFilter, $attrs, igTokenService, disqusTokenService, getInstagramsJSON, getDisqusJSON, slackSvc, slackTokenService) {
+.controller('Users', function Users( $http, $resource, $scope, $rootScope, $routeParams, $state, $localStorage, $location, $cacheFactory, $timeout, $window, $interval, xpnk_api, OAUTHIO_KEY, xpnkAuth, GroupObj, MemberObj, getTweetsJSON, memberTweetsFilter, $attrs, igTokenService, disqusTokenService, getInstagramsJSON, getDisqusJSON, slackSvc, slackTokenService, ModalService) {
 	
+	var location 						= $location.absUrl();
 	$scope.group_name 					= $routeParams.groupName;
+	group_id 							= xpnkAuth.GetGroupid();
+	$localStorage.xpnk_group_name    	= group_id;
+	var user_int 						= $localStorage.xpnkID;
+	console.log( "user_int:  " + user_int );
 
 	$http({method: 'GET', url: './data/'+$scope.group_name+'_users.json'}).success(function(data){		
 		$scope.users = data;
+		console.log( "$scope.users:  " , $scope.users );
+		newMemberAlert();
     });    
 
+	function isInPath ( pathVar ) {
+		return !!location.match( pathVar );
+	}
+
+	function userInData () { 
+		console.log( "userInData was called." );
+		var return_val						= 0;
+		var users 							= $scope.users;
+		console.log( "$scope.users:  " , $scope.users );
+		console.log( "users:  " , users );
+		angular.forEach( users, function ( value, key ) {
+			console.log( "angular.forEach was called!" );
+			console.log( "XpnkID: " + value.XpnkID + " | Key: " + key );
+			if ( value.XpnkID == user_int ) {
+				return_val = 1;
+				console.log( "return_val is true" ); 
+			} //else {
+				//return_val = 0;
+				//console.log( "return_val is false" );
+			//}
+	  	} ) 
+	  	return return_val;	
+	};
+
+	function newMemberAlert	() {
+		var not_group_view							= isInPath( 'reg-login' );
+		var users 									= $scope.users;
+		console.log( "not_group_view: " + not_group_view );	
+		if ( not_group_view == false ) {
+			var user_in_data						= userInData();									        
+			if ( ( $localStorage.xpnkLogin ) && ( ( user_in_data == 0 ) || ( users == '') ) ) {
+				newMemberModal();
+				$timeout( function() { $window.location.reload(); }, 60000, false );	
+			}
+		};	
+	};
+
+	function newMemberModal () {
+		ModalService.showModal ({
+			title: "We're fetching your posts right now.",
+			text: "It'll take us about 60 seconds to fetch your posts. The page will automatically reload.",
+			positive: "OK",
+			basic: true, 
+		});
+	};
+    
     var group_object = ['XpnkID', '-XpnkID', 'TweeterID', '-TweeterID']
     $scope.randomUser = group_object[Math.floor(Math.random() * group_object.length)];
 
@@ -567,7 +616,7 @@ angular.module('xpnkApp.controllers', [])
 			$scope.newCheck = angular.equals($scope.olddata, $rootScope.checkdata);
 			if ($scope.newCheck === true){
 			//if largest tweet_ID in checkdata is bigger than largest tweet_ID in olddata, take all tweets with tweet_ID bigger than biggest tweet_ID in olddata and append to view div, then run twitterwidgets on them (or vice versa) -- except this doesn't drop expired tweets
-			$scope.tweetStatus.switch = "on"; //show the New Tweets button
+				$scope.tweetStatus.switch = "on"; //show the New Tweets button
 			};
 		});//.then
 	;}, 60000);//end interval
@@ -633,6 +682,7 @@ angular.module('xpnkApp.controllers', [])
 		console.log( "$scope.login sees source as  " + source );
 		xpnkAuth.Login().then(function() {
 			console.log( "$scope.login is calling $scope.gotogroup..." );
+			$localStorage.xpnkLogin 				= 1;
 			$scope.gotogroup(source);
 		});
 	}
