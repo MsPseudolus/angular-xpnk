@@ -120,7 +120,14 @@ angular.module('xpnkApp.services', [])
 
   function TokenCheck() {
     if ($localStorage.xpnkToken) {
-      return $http.post('http://localhost:9090/api/v1/xpnk_auth_check', {headers:{'token' : $localStorage.xpnkToken}})             
+      var req = {
+          method: 'POST',
+          url: xpnk_api + 'api/v1/xpnk_auth_check',
+          headers: {
+              Token: $localStorage.xpnkToken
+          },
+      }
+      return $http(req)          
       .then( function( response ){
           var user                    = $localStorage.xpnkID;
           return response.status;
@@ -155,7 +162,7 @@ angular.module('xpnkApp.services', [])
   }
 
   function GetGroup ( group_id ){
-    var user                        = $localStorage.xpnkID;
+    
     return $http({ method: 'GET', url: xpnk_api + 'groups/members/' + group_id })
       .then( function ( data ){
           group = data.data;
