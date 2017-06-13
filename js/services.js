@@ -122,7 +122,7 @@ angular.module('xpnkApp.services', [])
     if ($localStorage.xpnkToken) {
       var req = {
           method: 'POST',
-          url: xpnk_api + 'api/v1/xpnk_auth_check',
+          url: xpnk_api + 'xpnk_auth_check',
       }
       return $http(req)          
       .then( function( response ){
