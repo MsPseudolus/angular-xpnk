@@ -6,14 +6,14 @@ angular.module('xpnkApp.controllers', [])
 *
 */
 .controller('Public', function Public($scope, $compile, $window, $location, $http, SLACK_CLIENT_ID, SLACK_CLIENT_SECRET, slackGroupTokenService, newGroupFromSlackService){
-	var slack_url = 'https://slack.com/oauth/authorize?scope=incoming-webhook,commands,bot,im:read,users:read,chat:write:user&client_id='+SLACK_CLIENT_ID+'&state=xpnk_add_to_slack'+'&redirect_uri=http://localhost:8000/added_to_Slack';
+	var slack_url = 'https://slack.com/oauth/authorize?scope=incoming-webhook,commands,bot,im:read,users:read,chat:write:user&client_id='+SLACK_CLIENT_ID+'&state=xpnk_add_to_slack'+'&redirect_uri=https://xapnik.com/added_to_Slack';
 	$scope.add_to_slack = function() {
 		$window.open(slack_url, '_self');
 	}
 
 	var request_params = $location.search();
 	var slack_team_code = request_params.slack_code;
-	var slack_token_url = 'https://slack.com/api/oauth.access?client_id='+SLACK_CLIENT_ID+'&client_secret='+SLACK_CLIENT_SECRET+'&code='+slack_team_code+"&redirect_uri=http://localhost:8000/added_to_Slack";
+	var slack_token_url = 'https://slack.com/api/oauth.access?client_id='+SLACK_CLIENT_ID+'&client_secret='+SLACK_CLIENT_SECRET+'&code='+slack_team_code+"&redirect_uri=https://xapnik.com/added_to_Slack";
 
 	var get_slack_team = function() {
 
@@ -41,7 +41,7 @@ angular.module('xpnkApp.controllers', [])
 			console.log("SLACK_BOT_ID:  "+slack_bot_id);
 			console.log("SLACK_BOT_TOKEN:  "+slack_bot_token);
 
-			$http({method: 'POST', url: 'http://localhost:9090/api/v1/slack_new_group?team_token='+slack_access_token+'&bot_token='+slack_bot_token+'&testMode='+test_mode+'&webhook='+slack_webhook})
+			$http({method: 'POST', url: xpnk_api+'slack_new_group?team_token='+slack_access_token+'&bot_token='+slack_bot_token+'&testMode='+test_mode+'&webhook='+slack_webhook})
 			.success(function(response) {
 				var new_group_response = {};
 				new_group_response = response;
