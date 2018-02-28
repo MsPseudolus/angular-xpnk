@@ -1,0 +1,150 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+	<meta charset="UTF-8">
+	<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0" name="viewport">
+	<title>Xapnik</title>
+	<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.js"></script>
+
+	<script src="https://xapnik.com/XAPNIK/lib/angular-1.3.15/angular.js"></script>
+
+  <script src="https://xapnik.com/XAPNIK/js/app.js"></script>
+  <script src="https://xapnik.com/XAPNIK/lib/angular-1.3.15/angular-route.min.js"></script>
+  <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/angular-ui-router/0.2.10/angular-ui-router.js"></script>
+	<!--<script src="node_modules/angular-ui-router/release/angular-ui-router.min.js"></script>-->
+	<script src="https://xapnik.com/XAPNIK/bower_components/ngstorage/ngStorage.min.js"></script>
+  <script src="https://xapnik.com/XAPNIK/js/controllers.js"></script>
+  <script src="https://xapnik.com/XAPNIK/js/services.js"></script>
+  <script src="https://xapnik.com/XAPNIK/js/directives.js"></script>
+  <script src="https://xapnik.com/XAPNIK/js/constants.js"></script>
+	<script src="https://xapnik.com/XAPNIK/Semantic-UI-CSS/semantic.js"></script>
+	<script src="https://xapnik.com/XAPNIK/node_modules/semantic-ui-modal/modal.min.js"></script>
+	<script src="https://xapnik.com/XAPNIK/node_modules/semantic-modals-master/semantic.modals.js"></script>
+
+  <script src="https://xapnik.com/XAPNIK/lib/angular-1.3.15/angular-animate.min.js"></script>
+	<script src="https://xapnik.com/XAPNIK/lib/angular-1.3.15/angular-sanitize.js"></script>
+	<script src="https://xapnik.com/XAPNIK/node_modules/underscore/underscore-min.js"></script>
+	<script src="https://xapnik.com/XAPNIK/node_modules/oauthio-web/dist/oauth.min.js"></script>
+	<script src="https://xapnik.com/XAPNIK/node_modules/angular-resource/angular-resource.min.js"></script>
+	<script src="https://xapnik.com/XAPNIK/bower_components/slackapi-angularjs/build/ng-deg.slackapi.min.js"></script>
+
+  <link href="https://fonts.googleapis.com/css?family=Poller+One|Raleway|Archivo+Narrow" rel="stylesheet">
+	<link rel="stylesheet" type="text/css" href="https://xapnik.com/XAPNIK/Semantic-UI-CSS/semantic.css"/>
+	<link rel="stylesheet" type="text/css" href="https://xapnik.com/XAPNIK/Semantic-UI-CSS/components/grid.css"/>
+	<link rel="stylesheet" type="text/css" href="https://xapnik.com/XAPNIK/Semantic-UI-CSS/components/card.css"/>
+	<link rel="stylesheet" type="text/css" href="https://xapnik.com/XAPNIK/Semantic-UI-CSS/components/container.css"/>
+	<link rel="stylesheet" type="text/css" href="https://xapnik.com/XAPNIK/Semantic-UI-CSS/components/list.css"/>
+	<link rel="stylesheet" type="text/css" href="https://xapnik.com/XAPNIK/Semantic-UI-CSS/components/icon.css"/>
+	<link rel="stylesheet" type="text/css" href="https://xapnik.com/XAPNIK/node_modules/semantic-ui-modal/modal.min.css"/>
+	<link rel="stylesheet" type="text/css" href="https://xapnik.com/XAPNIK/styles/xapnik-styles.css"/>
+
+	<link rel="icon" href="https://xapnik.com/XAPNIK/imgs/cropped-Logo-01-1000x1000.png?fit=32%2C32&#038;ssl=1" sizes="32x32" />
+  <link rel="icon" href="https://xapnik.com/XAPNIK/imgs/cropped-Logo-01-1000x1000.png?fit=192%2C192&#038;ssl=1" sizes="192x192" />
+  <link rel="apple-touch-icon-precomposed" href="https://xapnik.com/XAPNIK/imgs/cropped-Logo-01-1000x1000.png?fit=180%2C180&#038;ssl=1" />
+
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Xapnik" />
+  <meta property="og:description" content="Keeping groups and networks together and engaged." />
+  <meta property="og:url" content="https://xapnik.com/" />
+  <meta property="og:site_name" content="Xapnik" />
+  <meta property="og:image" content="https://i2.wp.com/blog.xapnik.com/wp-content/uploads/2017/11/22344153910_709e707f6b_o-1500.jpg?fit=1200%2C800&amp;ssl=1" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="800" />
+  <meta property="og:locale" content="en_US" />
+  <meta name="twitter:text:title" content="Home" />
+  <meta name="twitter:image" content="https://i2.wp.com/blog.xapnik.com/wp-content/uploads/2017/11/22344153910_709e707f6b_o-1500.jpg?fit=1200%2C800&#038;ssl=1&#038;w=640" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <link rel="icon" href="https://i1.wp.com/blog.xapnik.com/wp-content/uploads/2017/11/cropped-Logo-01-1000x1000.png?fit=32%2C32&#038;ssl=1" sizes="32x32" />
+  <link rel="icon" href="https://i1.wp.com/blog.xapnik.com/wp-content/uploads/2017/11/cropped-Logo-01-1000x1000.png?fit=192%2C192&#038;ssl=1" sizes="192x192" />
+  <link rel="apple-touch-icon-precomposed" href="https://i1.wp.com/blog.xapnik.com/wp-content/uploads/2017/11/cropped-Logo-01-1000x1000.png?fit=180%2C180&#038;ssl=1" />
+  <meta name="msapplication-TileImage" content="https://i1.wp.com/blog.xapnik.com/wp-content/uploads/2017/11/cropped-Logo-01-1000x1000.png?fit=270%2C270&#038;ssl=1" />
+
+  <!-- Google Tag Manager -->
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+  new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+  'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,'script','dataLayer','GTM-KB6J5VN');</script>
+  <!-- End Google Tag Manager -->
+
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-110996101-2"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'UA-110996101-2');
+  </script>
+
+  <!-- Start of xapnik Zendesk Widget script -->
+  <script>/*<![CDATA[*/window.zEmbed||function(e,t){var n,o,d,i,s,a=[],r=document.createElement("iframe");window.zEmbed=function(){a.push(arguments)},window.zE=window.zE||window.zEmbed,r.src="javascript:false",r.title="",r.role="presentation",(r.frameElement||r).style.cssText="display: none",d=document.getElementsByTagName("script"),d=d[d.length-1],d.parentNode.insertBefore(r,d),i=r.contentWindow,s=i.document;try{o=s}catch(e){n=document.domain,r.src='javascript:var d=document.open();d.domain="'+n+'";void(0);',o=s}o.open()._l=function(){var e=this.createElement("script");n&&(this.domain=n),e.id="js-iframe-async",e.src="https://assets.zendesk.com/embeddable_framework/main.js",this.t=+new Date,this.zendeskHost="xapnik.zendesk.com",this.zEQueue=a,this.body.appendChild(e)},o.write('<body onload="document._l();">'),o.close()}();
+/*]]>*/</script>
+  <!-- End of xapnik Zendesk Widget script -->
+
+</head>
+
+<body><!--index.html-->
+
+    <!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-KB6J5VN"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+
+<div class="ui grid centered">
+  <div class="one column row" style="padding: 110px 25px 55px 25px; background-color: #ff0074;">  
+<div class="ui text container">
+    <h1 class="ui inverted header" style="font-size: 4rem; color: #fff; font-family: 'Poller One', cursive; font-weight: 100;">
+      Xapnik
+    </h1>
+    <h2 style="color: white; font-size: 48px; font-family: 'Archivo Narrow', sans-serif;">Keeping groups and networks together and engaged.</h2>
+    <div ng-controller="Public" class="ui" style="margin-top: 50px;">
+    <a href="https://slack.com/oauth/authorize?scope=incoming-webhook,commands,bot,im:read,team:read,users:read,chat:write:user&client_id=127115082880.298012764657&state=xpnk_add_to_slack&redirect_uri=https://xapnik.com/added_to_Slack"><img alt="Add to Slack" height="40" width="139" src="https://platform.slack-edge.com/img/add_to_slack.png" srcset="https://platform.slack-edge.com/img/add_to_slack.png 1x, https://platform.slack-edge.com/img/add_to_slack@2x.png 2x" /></a>
+
+    </div>  
+  </div>
+
+</div>
+
+<div class="one column row" style="margin-top: 0px; font-size: 1.35rem; font-family: 'Raleway', sans-serif; background-color: #fdfcff; padding: 55px 25px 55px 25px;">
+  <div class="ui middle aligned stackable grid container">
+    <div class="row">
+      <div class="fourteen wide column" style="margin-left: 72px; margin-right: 72px; margin-bottom: 60px;"><h2 style="color: #ff0074; font-size: 30px; font-family: 'Archivo Narrow', sans-serif;">A simple clean web app for keeping up with and boosting your group members online.</h2></div>
+      <div class="six wide right floated column">
+        <img src="https://xapnik.com/XAPNIK/imgs/demo-02-08-17.gif" style="max-width: 350px; width: 100%;" frameborder="0">
+      </div>
+      <div class="eight wide left floated column" style="text-align: left;">
+        <h3 class="ui header" style="font-family: 'Archivo Narrow', sans-serif; font-size: 24px; color: #6d3820;">Create a Xapnik group in seconds for your existing Slack workspace team.</h3>
+        <p style="font-family: 'Raleway', serif; color: #6d3820;">Social media streams get overwhelming. But your group can be there for each other online, when and where it matters. Whether it's Twitter, Instagram or the comments section on a blog, your group sees quickly and easily when members are posting so they can amplify each other. It's private and opt-in, so everybody's safe.</p>
+        <h3 class="ui header" style="font-family: 'Archivo Narrow', sans-serif; font-size: 24px; color: #6d3820;">Stay sane. Focus on the now.</h3>
+        <p style="font-family: 'Raleway', serif; color: #6d3820;">Xapnik sticks to today's activity so you can focus on taking action in the moment. No wading through yesterday's news or being pulled down the rabbit hole of stale content and conversations.</p>
+        <h3 class="ui header" style="font-family: 'Archivo Narrow', sans-serif; font-size: 24px; ; color: #6d3820;">It's easy and free, and the benefits are huge.</h3>
+        <p style="font-family: 'Raleway', serif; color: #6d3820;">Just click the "Add to Slack" button. Your Xapnik group will be created automatically and your Slack workspace's members invited to join.<br><br>When your group members feel supported and connected via social media, they're much more likely to stay engaged and active in your group.</p>
+      </div>
+      
+    </div>
+  </div>
+</div>
+
+<div ng-controller="Public" class="one column row" style="padding: 55px 25px 55px 25px; background-color: #bcbdbd;">
+  <div class="ui text container">
+    <h3 class="ui header" style="font-family: 'Archivo Narrow', sans-serif; font-size: 24px; color: #6d3820;">Wait. What exactly is Xapnik?</h3>
+    <p  style="font-family: 'Raleway', sans-serif; font-size: 1.35rem; color: #6d3820;">It's a simple web-based app for keeping track of your group members' activity on social media, so that you never miss a thing.<br><br>Right now, you can spin up a Xapnik group for your Slack workspace team in seconds, just by clicking the "Add to Slack" button. Soon, we'll add other easy methods for quickly creating a Xapnik group.<br><br>Xapnik groups are private to members only (no trolls!).</p>
+    <a href="https://slack.com/oauth/authorize?scope=incoming-webhook,commands,bot,im:read,team:read,users:read,chat:write:user&client_id=127115082880.298012764657&state=xpnk_add_to_slack&redirect_uri=https://xapnik.com/added_to_Slack"><img alt="Add to Slack" height="40" width="139" src="https://platform.slack-edge.com/img/add_to_slack.png" srcset="https://platform.slack-edge.com/img/add_to_slack.png 1x, https://platform.slack-edge.com/img/add_to_slack@2x.png 2x" /></a>
+    <h4 class="ui horizontal header divider" style="margin-bottom: 55px;">
+      <a href="#"><h3 style="font-family: 'Archivo Narrow', sans-serif; font-size: 20px; color: #6d3820;">About Xapnik</h3></a>
+    </h4>
+    <p style="font-family: 'Raleway', sans-serif; text-align: justify; color: #6d3820;">Xapnik's the creation of tech veteran, entpreneur, and coder, <a href="http://twitter.com/mspseudolus" target="_blank" style="color: #ff0074;">Kirsten Lambertsen</a>. It was inspired by the members of an informal group she belongs to in NYC called the Danger Ladies, a collection of women in tech and startups who banded together to boost each other's careers and lives.</p>
+    <p style="font-family: 'Raleway', sans-serif; text-align: justify; color: #6d3820;">The Danger Ladies impact on Lambertsen's life demonstrated to her the power of solidarity even for a small group of like minded people. She wanted to make it easier for the Danger Ladies to always be there for each other on social media (and eventually in the meat space, too), and so she built Xapnik.</p>
+    <p style="font-family: 'Raleway', sans-serif; text-align: justify; color: #6d3820;">The events of early 2017 have strengthened Lambertsen's belief that small groups of people can make a huge difference in each others lives, even if they're spread out across the globe separated by thousands of miles. Her hope is that Xapnik will make a meaningful contribution to the power of people when they get together.</p>
+  </div>
+</div>
+</div><!--end grid-->
+
+</body>
+
+</html>

@@ -122,7 +122,7 @@ angular.module('xpnkApp.services', [])
     if ($localStorage.xpnkToken) {
       var req = {
           method: 'POST',
-          url: xpnk_api + 'xpnk_auth_check',
+          url: 'http://localhost:9090/api/v1/xpnk_auth_check',
       }
       return $http(req)          
       .then( function( response ){
@@ -285,21 +285,21 @@ angular.module('xpnkApp.services', [])
     },
 
     updateObj: function ( userObject ) {
-      if ( userObject.User_ID ) {this.data.User_ID = userObject.User_ID};
-      if ( userObject.Slack_name ) {this.data.Slack_name = userObject.Slack_name};
-      if ( userObject.Slack_ID ) {this.data.Slack_ID = userObject.Slack_ID};
-      if ( userObject.Slack_avatar ) {this.data.Slack_avatar = userObject.Slack_avatar};
-      if ( userObject.Twitter_user ) {this.data.Twitter_user = userObject.Twitter_user};
-      if ( userObject.Twitter_ID ) {this.data.Twitter_ID = userObject.Twitter_ID};
-      if ( userObject.Twitter_token ) {this.data.Twitter_token  = userObject.Twitter_token};
-      if ( userObject.Twitter_secret ) {this.data.Twitter_secret  = userObject.Twitter_secret};
-      if ( userObject.Insta_user ) {this.data.Insta_user  = userObject.Insta_user};
-      if ( userObject.Insta_userid ) {this.data.Insta_userid = userObject.Insta_userid};
-      if ( userObject.Insta_token ) {this.data.Insta_token = userObject.Insta_token};
-      if ( userObject.Disqus_username ) {this.data.Disqus_username = userObject.Disqus_username};
-      if ( userObject.Disqus_userid ) {this.data.Disqus_userid = userObject.Disqus_userid};
-      if ( userObject.Disqus_token ){this.data.Disqus_token = userObject.Disqus_token};
-      if ( userObject.Profile_image ) {this.data.Profile_image = userObject.Profile_image};
+      if ( userObject.user_ID ) {this.data.User_ID = userObject.user_ID};
+      if ( userObject.slack_name ) {this.data.Slack_name = userObject.slack_name};
+      if ( userObject.slack_ID ) {this.data.Slack_ID = userObject.slack_ID};
+      if ( userObject.slack_avatar ) {this.data.Slack_avatar = userObject.slack_avatar};
+      if ( userObject.twitter_user ) {this.data.Twitter_user = userObject.twitter_user};
+      if ( userObject.twitter_ID ) {this.data.Twitter_ID = userObject.twitter_ID};
+      if ( userObject.twitter_token ) {this.data.Twitter_token  = userObject.twitter_token};
+      if ( userObject.twitter_secret ) {this.data.Twitter_secret  = userObject.twitter_secret};
+      if ( userObject.insta_user ) {this.data.Insta_user  = userObject.insta_user};
+      if ( userObject.insta_userid ) {this.data.Insta_userid = userObject.insta_userid};
+      if ( userObject.insta_token ) {this.data.Insta_token = userObject.insta_token};
+      if ( userObject.disqus_username ) {this.data.Disqus_username = userObject.disqus_username.String};
+      if ( userObject.disqus_userid ) {this.data.Disqus_userid = userObject.disqus_userid.String};
+      if ( userObject.disqus_token ){this.data.Disqus_token = userObject.disqus_accesstoken};
+      if ( userObject.profile_image ) {this.data.Profile_image = userObject.profile_image};
     },
 
     emptyObj: function () {
@@ -447,11 +447,11 @@ angular.module('xpnkApp.services', [])
             return $http({method: 'GET', url: group_data}).success(function(data){
                 data = (data);
                 $rootScope.checkdata = data;
-            });//end GET
-        }	// getJSON
-    };	//tweetsJSONObj
+            });
+        }	
+    };	
     return tweetsJSONObj;
-}) //getTweetsJSON
+}) 
 
 .filter ('memberTweets', function () {
   return function (thisData, xpnkID) {
@@ -480,29 +480,28 @@ angular.module('xpnkApp.services', [])
                     if (_.findWhere($rootScope.oldTweets, {tweet_ID: tweetID})){
                     } else {
                         tweetsToAdd.push(tweetID);
-                    }//end if statement
-                }//end for loop
+                    }
+                }
                 console.log("I AM tweetsToAdd");
                 console.log(tweetsToAdd.length);
-            });//end return newTweetsService
-        }//iterateTweets
-    };//tweetsToAddObj
+            });
+        }
+    };
     return tweetsToAddObj;
-})//isolateNewTweets
+})
 
 .factory('tweetsCompare', function($rootScope, $q, newTweetsService) {
     var compareObj = {
         compareTweets: function() {
             return newTweetsService.fetchNewTweets().then(function(newTweetsObj){
                 var newOrNotNew = angular.equals(newTweetsObj, $rootScope.oldTweets);
-                //var newOrNotNew = newTweetsObj.length - $rootScope.oldTweets.length;
                 $rootScope.oldTweets = newTweetsObj;
                 return newOrNotNew;
-            });//
-        }//compareTweets
-    }; //compareObj
+            });
+        }
+    }; 
     return compareObj;
-}) //checkForNewTweets
+}) 
 
 //6/22 retool this to put newData in $rootScope and then add   $rootScope.$watch('newData', display New Tweets label);
 .factory('newTweetsService', function($http, $routeParams, $rootScope, $q) {
@@ -512,20 +511,11 @@ angular.module('xpnkApp.services', [])
         fetchNewTweets: function() {
             return $http.get(group_data).then(function(result){
                 $rootScope.newData = result.data;
-                //newTweets = _.groupBy(newData, "twitter_user");
-                //return newTweets;
-                //tweetscount = _.size(newTweets);
-                //tweeters = _.keys(newTweets);
-
-                //tweet_count = newData.length;
-
-                //console.log("THIS IS THE FACTORY OUTPUT:");
-                //console.log(newTweets);
-            });//end GET
-        }//fetchNewTweets
-    };//newTweetsObj
+            });
+        }
+    };
     return newTweetsObj;
-})	//end updateTweets factory
+})	
 
 .factory('addNewTweetsService', function($rootScope, isolateNewTweets) {
     var addTheseTweets = ["610557817343377408", "610048807984852992"];
@@ -534,11 +524,11 @@ angular.module('xpnkApp.services', [])
         addNewTweets: function() {
             for(var i = 0; i < (addTweetsLength); i++) {
 
-            } //for loop
-        } // addNewTweets
-    }; // addNewTweetsObj
+            } 
+        } 
+    }; 
     return addNewTweetsObj;
-})//addNewTweetsService
+})
 
 /*********************************************************************
  * INSTAGRAM SERVICES
@@ -558,11 +548,11 @@ angular.module('xpnkApp.services', [])
             return $http({method: 'GET', url: group_data}).success(function(data){
                 data = (data);
                 $rootScope.checkIGdata = data;
-            });//end GET
-        }	// getJSON
-    };	//instagramsJSONObj
+            });
+        }	
+    };	
     return instagramsJSONObj;
-}) //getInstagramsJSON
+}) 
 
 .factory('isolateNewInstagrams', function ($rootScope, newInstagramsService) {
    var instagramsToAdd = [];
@@ -576,26 +566,26 @@ angular.module('xpnkApp.services', [])
                    if (_.findWhere($rootScope.oldInstagrams, {InstagramDate: instagramID})) {
                    } else {
                        instagramsToAdd.push(instagramID);
-                   }//end if statement
-               }//end for loop
-           });//end return newInstagramsService
-       }//iterateInstagrams
-   };//instagramsToAddObj
+                   }
+               }
+           });
+       }
+   };
    return instagramsToAddObj;
-})//isolateNewInstagrams
+})
 
 .factory('instagramsCompare', function($rootScope, $q, newInstagramsService) {
    var compareObj = {
        compareInstagrams: function() {
            return newInstagramsService.fetchNewInstagrams().then(function(newInstagramsObj){
-               var newOrNotNew = angular.equals(newInsagramsObj, $rootScope.oldInstagrams);
+               var newOrNotNew = angular.equals(newInstagramsObj, $rootScope.oldInstagrams);
                $rootScope.oldInstagrams = newInstagramsObj;
                return newOrNotNew;
-           });//return
-       }//compareInstagrams
-   }; //compareObj
+           });
+       }
+   };
    return compareObj;
-}) //checkForNewInstagrams
+}) 
 
 .factory('newInstagramsService', function($http, $routeParams, $rootScope, $q) {
    var group_name = $routeParams.groupName;
@@ -604,11 +594,11 @@ angular.module('xpnkApp.services', [])
        fetchNewInstagrams: function() {
            return $http.get(group_data).then(function(result){
                $rootScope.newData = result.data;
-           });//end GET
-       }//fetchNewInstagrams
-   };//newInstagramsObj
+           });
+       }
+   };
    return newInstagramsObj;
-})	//end newInstagramsService factory
+})
 
 .factory('addNewInstagramsService', function($rootScope, isolateNewInstagrams) {
    var addTheseInstagrams = ["610557817343377408", "610048807984852992"];
@@ -616,11 +606,11 @@ angular.module('xpnkApp.services', [])
    var addNewInstagramsObj = {
        addNewInstagrams: function() {
            for(var i = 0; i < (addInstagramsLength); i++) {
-           } //for loop
-       } // addNewInstagrams
-   }; // addNewInstagramsObj
+           } 
+       } 
+   };
    return addNewInstagramsObj;
-})//addNewInstagramsService
+})
 
 /*********************************************************************
  * DISQUS SERVICES
@@ -640,8 +630,56 @@ angular.module('xpnkApp.services', [])
             return $http({method: 'GET', url: group_data}).success(function(data){
                 data = (data);
                 $rootScope.checkDisqusData = data;
-            });//end GET
-        } // getJSON
-    };  //instagramsJSONObj
+            });
+        } 
+    };  
     return disqusJSONObj;
-}) //getInstagramsJSON
+}) 
+
+.factory('isolateNewDisqusions', function ($rootScope, newDisqusionsService) {
+   var disqusionsToAdd = [];
+   var disqusionsToAddObj = {
+       iterateDisqusions: function () {
+           return newDisqusionsService.fetchNewDisqusions().then(function (newDisqusionsObj) {
+               var newDisqusions = newDisqusionsObj;
+               var newDisqusionsLength = newDisqusionsObj.length;
+               for (var i = 0; i < (newDisqusions.length); i++) {
+                   var DisqusionID = newDisqusions[i].DisqusionDate;
+                   if (_.findWhere($rootScope.oldDisqusions, {DisqusionDate: DisqusionID})) {
+                   } else {
+                       disqusionsToAdd.push(disqusionID);
+                   }
+               }
+           });
+       }
+   };
+   return disqusionsToAddObj;
+})
+
+.factory('disqusionsCompare', function($rootScope, $q, newDisqusionsService) {
+   var compareObj = {
+       compareDisqusions: function() {
+           return newDisqusionsService.fetchNewDisqusions().then(function(newDisqusionsObj){
+               var newOrNotNew = angular.equals(newDisqusionsObj, $rootScope.oldDisqusions);
+               $rootScope.oldDisqusions = newDisqusionsObj;
+               return newOrNotNew;
+           });
+       }
+   }; 
+   return compareObj;
+}) 
+
+.factory('newDisqusionsService', function($http, $routeParams, $rootScope, $q) {
+   var group_name = $routeParams.groupName;
+   var group_data = './data/'+group_name+'_disqus.json';
+   var newDisqusionsObj = {
+       fetchNewDisqusions: function() {
+           return $http.get(group_data).then(function(result){
+               $rootScope.newData = result.data;
+           });
+       }
+   };
+   return newDisqusionsObj;
+})
+
+

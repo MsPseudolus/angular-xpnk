@@ -6,7 +6,7 @@ angular.module('xpnkApp.controllers', [])
 *
 */
 .controller('Public', function Public($scope, $compile, $window, $location, $http, SLACK_CLIENT_ID, SLACK_CLIENT_SECRET, slackGroupTokenService, newGroupFromSlackService){
-	var slack_url = 'https://slack.com/oauth/authorize?scope=incoming-webhook,commands,bot,team:read,users:read,chat:write:user&client_id='+SLACK_CLIENT_ID+'&state=xpnk_add_to_slack'+'&redirect_uri=http://localhost:8000/added_to_Slack';
+	var slack_url = 'https://slack.com/oauth/authorize?scope=incoming-webhook,commands,bot,im:read,users:read,chat:write:user&client_id='+SLACK_CLIENT_ID+'&state=xpnk_add_to_slack'+'&redirect_uri=http://localhost:8000/added_to_Slack';
 	$scope.add_to_slack = function() {
 		$window.open(slack_url, '_self');
 	}
@@ -33,6 +33,7 @@ angular.module('xpnkApp.controllers', [])
 			slack_bot_object = data.bot;
 			var slack_bot_id = slack_bot_object.bot_user_id;
 			var slack_bot_token = slack_bot_object.bot_access_token;
+			var test_mode = "true";
 
 			console.log("SLACK_ACCESS_TOKEN:  "+slack_access_token);
 			console.log("SLACK_TEAM_NAME:  "+slack_team_name);
@@ -40,7 +41,7 @@ angular.module('xpnkApp.controllers', [])
 			console.log("SLACK_BOT_ID:  "+slack_bot_id);
 			console.log("SLACK_BOT_TOKEN:  "+slack_bot_token);
 
-			$http({method: 'POST', url: 'http://localhost:9090/api/v1/slack_new_group?team_token='+slack_access_token+'&bot_token='+slack_bot_token})
+			$http({method: 'POST', url: 'http://localhost:9090/api/v1/slack_new_group?team_token='+slack_access_token+'&bot_token='+slack_bot_token+'&testMode='+test_mode+'&webhook='+slack_webhook})
 			.success(function(response) {
 				var new_group_response = {};
 				new_group_response = response;
@@ -118,9 +119,9 @@ angular.module('xpnkApp.controllers', [])
             	console.log( "new_member.data:  " + JSON.stringify( data ) );
 	          	db_user_object 						= data;
 	          	console.log( "db_user_object:  " + JSON.stringify( db_user_object ) );
-	          	if ( db_user_object.User_ID == 0 ) {
+	          	if ( db_user_object.user_ID == 0 ) {
 	          		MemberObj.updateObj( auth_obj );
-	          	} else if ( db_user_object.User_ID != 0) {
+	          	} else if ( db_user_object.user_ID != 0) {
 	          		MemberObj.updateObj( db_user_object );
 	          	}
 	          	console.log( "MemberObj after new_member:  " + JSON.stringify( MemberObj ) );
@@ -548,7 +549,7 @@ angular.module('xpnkApp.controllers', [])
     });    
 
 	function isInPath ( pathVar ) {
-		return !!location.match( pathVar );
+		return location.match( pathVar );
 	}
 
 	function userInData () { 
@@ -628,7 +629,6 @@ angular.module('xpnkApp.controllers', [])
 		load_instagrams();
 	};	//refreshTweets used by the New Tweets button in the template
 
-	
 	function load_instagrams () {
 		//$scope.instagramStatus.switch = "off"; //so our New posts button does not display
 		getInstagramsJSON.getJSON().then(function(instagramsJSONObj){
@@ -666,7 +666,7 @@ angular.module('xpnkApp.controllers', [])
 
 	$scope.refreshInstagrams = function () {
 		load_instagrams();
-	};	//refreshTweets used by the New Tweets button in the template
+	};	
 
 	function load_disqus () {
 		// $scope.tweetStatus.switch = "off"; //so our New posts button does not display
@@ -675,7 +675,7 @@ angular.module('xpnkApp.controllers', [])
 			$scope.thisDisqus = _.groupBy($scope.disqusData, "XpnkID");
 			$scope.disquserscount = $scope.disqusData.length;
 		});
-	};	//end load_tweets()
+	};
 
 	$scope.login = function(source) {
 		var source = source;
@@ -1040,7 +1040,7 @@ angular.module('xpnkApp.controllers', [])
 	function getuserinstagrams(instagrammer) {
 		console.log('I AM GETUSERINSTAGRAMS');
 
-		var scopedata = $scope.thisData;
+		var scopedata = $scope.igData;
 		var scopedatalength = scopedata.length;
 		var userinstagrams = [];
 		for (var i = 0; i < scopedatalength; i++) {
@@ -1072,7 +1072,58 @@ angular.module('xpnkApp.controllers', [])
 
 			isolateNewInstagrams.iterateInstagrams().then(function(instagramsToAddObj){
 
-				$scope.whatsNewObj = instagramsToAddObj.newInstagramssLength;
+				$scope.whatsNewObj = instagramsToAddObj.newInstagramsLength;
+				$scope.newCount = $scope.whatsNewObj.length;
+			});//end isolateNewInstagrams.iterateInstagrams().then
+
+		});//end instagramsCompare.compareTweets().then
+
+
+	}; //newInstagramsOrNot
+
+
+	/*
+	*
+	* Disqus content functions
+	*
+	*/
+
+	function getuserdisqus(disquser) {
+		console.log('I AM GETUSERDISQUS');
+
+		var scopedata = $scope.disqusData;
+		var scopedatalength = scopedata.length;
+		var userdisqusions = [];
+		for (var i = 0; i < scopedatalength; i++) {
+			var thisdisqus = scopedata[i];
+			var disqususer = thisdisqus["DisqusUser"];
+			if (disqususer === disquser) {
+				var post_disqus = thisdisqus["DisqusDate"];
+				userdisqusions.push(post_disqus);
+			}
+
+		}
+		$scope.user_disqusions = userdisqusions;
+
+	};//end getuserinstagrams()
+
+	//can probably delete this function eventually
+	function checkNewDisqus(){
+		newDisqusionsService.fetchNewDisqusions().then(function(newDisqusionsObj) {
+			$scope.disqusionsUpdate = newDisqusionsObj;
+		});
+	};
+
+	function newDisqusOrNot() {
+		disqusionsCompare.compareDisqusions().then(function(compareObj) {
+			$scope.newDisqusionsStatus = compareObj;
+			if (compareObj === true) {
+				return
+			};//end if compareObj
+
+			isolateNewDisqusions.iterateDisqusions().then(function(disqusionsToAddObj){
+
+				$scope.whatsNewObj = disqusionsToAddObj.newDisqusionsLength;
 				$scope.newCount = $scope.whatsNewObj.length;
 			});//end isolateNewInstagrams.iterateInstagrams().then
 
