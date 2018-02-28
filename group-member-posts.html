@@ -1,7 +1,7 @@
 <!--begin group-member-posts-->
 <div class="ui padded grid" id="group-tweets">
     <div class="column">
-        <div><h1 class="group-name uppercase" style="text-align: center; margin-bottom: .5em;">{{group_name}}</h1>
+        <div><h1 class="group-name uppercase" style="text-align: center; margin-bottom: .5em; font-family: 'Archivo Narrow', sans-serif; font-weight: 800;">{{group_name}}</h1>
         </div>
 
         <div id="newTweetStatus" ng-switch on="tweetStatus.switch" style="text-align: center;">
@@ -15,7 +15,7 @@
         <div ng-repeat="Member in users  | orderBy: randomUser " ng-cloak xpnkid="{{Member.XpnkID}}">
             <div class="tweeter-container">
                 <row class="tweeter-title-row">
-                <h2 class="ui tweeter-title" ng-model="tweeterID">{{Member.TweeterID}}</h2><!--TO DO add fname lname to json file and display those here instead of tweeterID-->
+                <h2 class="ui tweeter-title" ng-model="tweeterID" style="font-family: 'Raleway', serif; font-size: 1.1rem;"">{{Member.TweeterID}}</h2><!--TO DO add fname lname to json file and display those here instead of tweeterID-->
                 </row>
                 <row>
                     <div style="float: left; width: 21%; margin-right: -10px;">

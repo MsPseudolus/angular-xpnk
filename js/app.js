@@ -15,9 +15,11 @@ angular.module('xpnkApp', [
 
 .config  (function( $routeProvider, $stateProvider, $urlRouterProvider, $httpProvider){
     $routeProvider
+         /*
         .when('/',{
             templateUrl: 'welcome.html'
         })
+        */
         .when('/group/:groupName',{
             templateUrl: 'group.html',
             resolve: {
@@ -62,6 +64,9 @@ angular.module('xpnkApp', [
         })
         .when('/added_to_Slack_ii', {
             templateUrl: 'added-to-Slack_ii.html'
+        })
+        .when('/privacy-and-terms', {
+            templateUrl: 'terms.html'
         })
         ;
 
