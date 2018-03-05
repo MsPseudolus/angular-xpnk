@@ -15,8 +15,19 @@ angular.module('xpnkApp.directives', [])
 .directive('embedTemplate', function($interpolate) {
     return {
         link: function($scope, $element, $attr){
-            twttr.widgets.createTweet($attr.id,$element [0],{ align: 'left' });
+            twttr.widgets.createTweet($attr.id,$element [0],{ align: 'left' })
+            .then( function ( el ) {
+                $scope.tweetHasLoaded = true;
+                $scope.$digest();
+                console.log('Tweet added.');
+            });
         }
+    }
+})
+
+.directive('twintents', function() {
+    return {
+        template: '<div class="twintents" ng-if="tweetHasLoaded"><span><a href="https://twitter.com/intent/retweet?tweet_id={{thistweet.TweetID}}"><span class="icon-retweet-button"></span></a></span><span><a href="https://twitter.com/intent/tweet?in_reply_to={{thistweet.TweetID}}"><span class="icon-reply"></span></a></span></div>'
     }
 })
 

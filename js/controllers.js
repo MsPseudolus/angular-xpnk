@@ -969,6 +969,7 @@ angular.module('xpnkApp.controllers', [])
 			}
 		}
 		$scope.tweeter_tweets = tweetertweets[0];
+		$scope.tweetHasLoaded = false;
 		console.log('TWEETER TWEETS:')
 		console.log($scope.tweeter_tweets);
 		

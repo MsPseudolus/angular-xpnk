@@ -1,10 +1,12 @@
 
 <!--begin xpnk-tweets-->
 			<div class="tweet-window" data-thisTweeter={{Member.XpnkID}}>
-				<div xpnkID={{Member.XpnkID}} data-ng-repeat="tweet in thisData" data-ng-if="tweet.XpnkID == Member.XpnkID">
+				<div xpnkID={{Member.XpnkID}} data-ng-repeat="tweet in thisData" data-ng-if="tweet.XpnkID == Member.XpnkID" class="twembed">
 					<div xpnkID={{Member.XpnkID}} id="tweets-container" data-ng-repeat="thistweet in tweet.TwitterPosts | orderBy: '-TweetID' " class="animate-refresh" ng-cloak>
 						<span id="{{thistweet.TweetID}}" embed-template ng-cloak></span>
+						<twintents></twintents>
 					</div>
+
 				</div>
 			</div>
 <!--end xpnk-tweets-->
