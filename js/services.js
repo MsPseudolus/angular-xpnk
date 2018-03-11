@@ -289,17 +289,17 @@ angular.module('xpnkApp.services', [])
       if ( userObject.slack_name ) {this.data.Slack_name = userObject.slack_name};
       if ( userObject.slack_ID ) {this.data.Slack_ID = userObject.slack_ID};
       if ( userObject.slack_avatar ) {this.data.Slack_avatar = userObject.slack_avatar};
-      if ( userObject.twitter_user ) {this.data.Twitter_user = userObject.twitter_user};
-      if ( userObject.twitter_ID ) {this.data.Twitter_ID = userObject.twitter_ID};
-      if ( userObject.twitter_token ) {this.data.Twitter_token  = userObject.twitter_token};
-      if ( userObject.twitter_secret ) {this.data.Twitter_secret  = userObject.twitter_secret};
-      if ( userObject.insta_user ) {this.data.Insta_user  = userObject.insta_user};
-      if ( userObject.insta_userid ) {this.data.Insta_userid = userObject.insta_userid};
-      if ( userObject.insta_token ) {this.data.Insta_token = userObject.insta_token};
-      if ( userObject.disqus_username ) {this.data.Disqus_username = userObject.disqus_username.String};
-      if ( userObject.disqus_userid ) {this.data.Disqus_userid = userObject.disqus_userid.String};
-      if ( userObject.disqus_token ){this.data.Disqus_token = userObject.disqus_accesstoken};
-      if ( userObject.profile_image ) {this.data.Profile_image = userObject.profile_image};
+      if ( userObject.Twitter_user ) {this.data.Twitter_user = userObject.Twitter_user};
+      if ( userObject.Twitter_ID ) {this.data.Twitter_ID = userObject.Twitter_ID};
+      if ( userObject.Twitter_token ) {this.data.Twitter_token  = userObject.Twitter_token};
+      if ( userObject.Twitter_secret ) {this.data.Twitter_secret  = userObject.Twitter_secret};
+      if ( userObject.Insta_user ) {this.data.Insta_user  = userObject.Insta_user};
+      if ( userObject.Insta_userid ) {this.data.Insta_userid = userObject.Insta_userid};
+      if ( userObject.Insta_token ) {this.data.Insta_token = userObject.Insta_token};
+      if ( userObject.Disqus_username ) {this.data.Disqus_username = userObject.Disqus_username};
+      if ( userObject.Disqus_userid ) {this.data.Disqus_userid = userObject.Disqus_userid};
+      if ( userObject.Disqus_token ){this.data.Disqus_token = userObject.Disqus_token};
+      if ( userObject.Profile_image ) {this.data.Profile_image = userObject.Profile_image};
     },
 
     emptyObj: function () {
@@ -345,6 +345,7 @@ angular.module('xpnkApp.services', [])
 
   function handleSuccess( response ){
     console.log( "InsertNewUser response:  " + JSON.stringify( response ));
+    console.log( "InsertNewUser response.data: " + response.data );
     return( response.data );
   }
 })  
