@@ -385,42 +385,44 @@ angular.module('xpnkApp.controllers', [])
 	  	}	
 	  	else if ( MemberObj.data.User_ID == '' ) {
 	  		NewUserObj 					= create_new_user ( MemberObj );
-	  		if ( NewUserObj == 1 ) {
-	  			console.log( "NewUserObj == 1");
-	  			if ( MemberObj.data.Twitter_ID != '' ) {
-	  				console.log( "Going to fetch twitter_id: " + MemberObj.data.Twitter_ID);
-	  				user_id 			= MemberObj.data.Twitter_ID;
-	  				console.log( "going to fetch user_id: " + user_id);
-	  				var geturl 			= xpnk_api + 'users/twitter?id=' + user_id;
-	  				console.log ( "geturl for getting xpnk_id is:  " + geturl );
-	  				$http( {method: 'GET', url: geturl} )
-            		.success(function(data){ 
-            			console.log( " users/twitter returned: " + JSON.stringify( data ));
-	  					Xpnk_ID 		= data.User_ID;
-	  					console.log( " GallianoProcess thinks it's adding this user to the group:  " + Xpnk_ID);
-	  					add_group_member( Xpnk_ID );
-	  				})
-	  				.error( function( data ){
-	  					console.log( "Something went wrong with getting the xpnk id: " + data );
-	  				})	
-	  			} 
-	  			else if ( MemberObj.data.Insta_userid != '' ) {
-	  				user_id 			= MemberObj.data.Insta_userid;
-	  				$http({method: 'GET', url: xpnk_api + 'users/ig?id=' + user_id})
-            		.success(function(data){ 
-	  					Xpnk_ID 		= data.User_ID;
-	  					console.log( " GallianoProcess is going to add this user to the group:  " + Xpnk_ID);	
-	  					add_group_member( Xpnk_ID );
-	  				})
-	  				.error( function( data ){
-	  					console.log( "Something went wrong with getting the xpnk id: " + data);
-	  				})
-	  			}	
-	  		}
-	  		
-	  	} 
-    	else {
-	  		console.log ("Is the User_ID missing from MemberObj? I need that to add the new member.")
+	  		    		NewUserObj.then( function( response ){
+    			if ( response == "New user inserted." ) {
+	  				console.log( "NewUserObj.response == New user inserted.");
+		  			if ( MemberObj.data.Twitter_ID != '' ) {
+		  				console.log( "Going to fetch twitter_id: " + MemberObj.data.Twitter_ID);
+		  				user_id 			= MemberObj.data.Twitter_ID;
+		  				console.log( "going to fetch user_id: " + user_id);
+		  				var geturl 			= xpnk_api + 'users/twitter?id=' + user_id;
+		  				console.log ( "geturl for getting xpnk_id is:  " + geturl );
+		  				$http( {method: 'GET', url: geturl} )
+	            		.success(function(data){ 
+	            			console.log( " users/twitter returned: " + JSON.stringify( data ));
+		  					Xpnk_ID 		= data.user_ID;
+		  					console.log( " GallianoProcess thinks it's adding this user to the group:  " + Xpnk_ID);
+		  					add_group_member( Xpnk_ID );
+		  				})
+		  				.error( function( data ){
+		  					console.log( "Something went wrong with getting the xpnk id: " + data );
+		  			})	
+	  			} else if ( MemberObj.data.Insta_userid != '' ) {
+		  				user_id 			= MemberObj.data.Insta_userid;
+		  				$http({method: 'GET', url: xpnk_api + 'users/ig?id=' + user_id})
+	            		.success(function(data){ 
+		  					Xpnk_ID 		= data.User_ID;
+		  					console.log( " GallianoProcess is going to add this user to the group:  " + Xpnk_ID);	
+		  					add_group_member( Xpnk_ID );
+		  				})
+		  				.error( function( data ){
+		  					console.log( "Something went wrong with getting the xpnk id: " + data);
+		  				})
+		  			}	
+		  		} else {
+		  			console.log("The NewUserObj.response != New user inserted.");
+		  		}
+
+    		});	  		
+	  	} else {
+	  		console.log ("Is the User_ID missing from MemberObj? I need that to add the new member.");
 		}
 	}	
 
@@ -483,8 +485,9 @@ angular.module('xpnkApp.controllers', [])
 			ProfileImage		:  MemberObj.data.Profile_image
     	}
     	//send MemberObj to users/new endpoint
-    	InsertNewUser.insert( data );
-    	return 1;
+    	userInserted = InsertNewUser.insert( data );
+    	console.log( "userInserted = " + userInserted );
+    	return userInserted.status;
     }
 
     function update_user ( MemberObj ){
@@ -514,7 +517,7 @@ angular.module('xpnkApp.controllers', [])
     	AddMemberToGroup.addMember(this_group, Xpnk_ID)
   		.then( function() {
   			console.log("add_group_member is calling $scope.login..."),
-  			$scope.login(GroupObj.data.group_source),
+  			$scope.login(GroupObj.data.group_source, Xpnk_ID),
   			function( errorMessage ) {
   			console.warn( errorMessage );
   		}
@@ -677,12 +680,13 @@ angular.module('xpnkApp.controllers', [])
 		});
 	};
 
-	$scope.login = function(source) {
+	$scope.login = function(source xpnkid) {
 		var source = source;
 		console.log( "$scope.login sees source as  " + source );
 		xpnkAuth.Login().then(function() {
 			console.log( "$scope.login is calling $scope.gotogroup..." );
 			$localStorage.xpnkLogin 				= 1;
+			$localStorage.xpnkID 					= xpnkid;
 			$scope.gotogroup(source);
 		});
 	}
